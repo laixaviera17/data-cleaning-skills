@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cleaning_log.schema.json",
+  "title": "Cleaning Operation Log CSV",
+  "type": "object",
+  "required": ["columns"],
+  "properties": {
+    "columns": {
+      "type": "array",
+      "prefixItems": [
+        {"const": "timestamp"},
+        {"const": "step"},
+        {"const": "rule_name"},
+        {"const": "action"},
+        {"const": "affected_rows"},
+        {"const": "result"},
+        {"const": "message"}
+      ],
+      "minItems": 7
+    },
+    "row_contract": {
+      "type": "object",
+      "properties": {
+        "timestamp": {"type": "string"},
+        "step": {"type": "string"},
+        "rule_name": {"type": "string"},
+        "action": {"type": "string"},
+        "affected_rows": {"type": "integer", "minimum": 0},
+        "result": {"type": "string"},
+        "message": {"type": "string"}
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,24 @@
+date_rules:
+  enable: true
+  strict: true
+  fields:
+    - publish_date
+
+phone_rules:
+  enable: true
+  strict: true
+  country_code: "86"
+  fields:
+    - phone
+
+amount_rules:
+  enable: true
+  strict: true
+  decimal_places: 2
+  fields:
+    - amount
+
+output:
+  output_dir: "examples/boundary/expected_outputs"
+  standardization_report_name: "standardization_report.json"
+  abnormal_records_name: "abnormal_records.json"

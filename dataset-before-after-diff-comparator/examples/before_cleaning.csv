@@ -1,0 +1,4 @@
+id,name,status,score,source
+1,张三,有效,80,site_a
+2,李四,无效,70,site_b
+3,王五,有效,60,site_c

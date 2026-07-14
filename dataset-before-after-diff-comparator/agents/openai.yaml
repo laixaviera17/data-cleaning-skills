@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dataset Before After Diff Comparator"
+  short_description: "Compare datasets before and after cleaning."
+  default_prompt: "Use $dataset-before-after-diff-comparator to compare a raw dataset with its cleaned version and summarize row and field changes."

@@ -1,0 +1,2 @@
+row,field_name,value,issue_type,reason,action,remark
+2,status,禁用,disallowed_dictionary_value,字段值在字典中被标记为不允许: 禁用,report,不允许状态

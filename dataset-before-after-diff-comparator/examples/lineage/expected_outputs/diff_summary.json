@@ -1,0 +1,19 @@
+{
+  "before_rows": 3,
+  "after_rows": 3,
+  "added_rows": 1,
+  "removed_rows": 1,
+  "changed_records": 2,
+  "changed_cells": 8,
+  "compared_fields": 7,
+  "key_fields": [
+    "id"
+  ],
+  "lineage_fields": [
+    "_source_file",
+    "_source_row",
+    "_record_hash",
+    "_batch_id",
+    "_rule_version"
+  ]
+}

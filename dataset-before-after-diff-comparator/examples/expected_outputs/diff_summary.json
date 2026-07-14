@@ -1,0 +1,13 @@
+{
+  "before_rows": 3,
+  "after_rows": 3,
+  "added_rows": 1,
+  "removed_rows": 1,
+  "changed_records": 2,
+  "changed_cells": 3,
+  "compared_fields": 4,
+  "key_fields": [
+    "id"
+  ],
+  "lineage_fields": []
+}

@@ -1,0 +1,56 @@
+{
+  "total_rows": 5,
+  "output_rows": 4,
+  "total_fields": 7,
+  "missing_cells": 12,
+  "repaired_cells": 10,
+  "dropped_rows": 1,
+  "dropped_cells": 1,
+  "unrepaired_cells": 1,
+  "missing_fields": [],
+  "field_stats": {
+    "id": {
+      "missing_cells": 0,
+      "non_missing_cells": 5,
+      "missing_rate": 0.0
+    },
+    "name": {
+      "missing_cells": 2,
+      "non_missing_cells": 3,
+      "missing_rate": 0.4
+    },
+    "age": {
+      "missing_cells": 2,
+      "non_missing_cells": 3,
+      "missing_rate": 0.4
+    },
+    "phone": {
+      "missing_cells": 2,
+      "non_missing_cells": 3,
+      "missing_rate": 0.4
+    },
+    "email": {
+      "missing_cells": 1,
+      "non_missing_cells": 4,
+      "missing_rate": 0.2
+    },
+    "country": {
+      "missing_cells": 3,
+      "non_missing_cells": 2,
+      "missing_rate": 0.6
+    },
+    "address": {
+      "missing_cells": 2,
+      "non_missing_cells": 3,
+      "missing_rate": 0.4
+    }
+  },
+  "strategy_stats": {
+    "fill_default": 2,
+    "median": 2,
+    "fill_custom": 3,
+    "ffill": 2,
+    "bfill": 1,
+    "drop": 1
+  }
+}

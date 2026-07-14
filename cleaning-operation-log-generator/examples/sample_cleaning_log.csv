@@ -1,0 +1,4 @@
+timestamp,rule_name,action,affected_rows,result
+2026-06-16 10:00:00,load_input,check,25,success
+2026-06-16 10:00:01,format-standardizer,standardize,5,warning
+2026-06-16 10:00:02,export_outputs,export,4,success

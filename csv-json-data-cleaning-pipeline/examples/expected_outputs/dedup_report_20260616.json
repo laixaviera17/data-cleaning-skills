@@ -1,0 +1,8 @@
+{
+  "input_rows": 25,
+  "output_rows": 23,
+  "exact_duplicate_rows": 2,
+  "similarity_duplicate_rows": 0,
+  "total_duplicate_rows": 2,
+  "similarity_matches": []
+}

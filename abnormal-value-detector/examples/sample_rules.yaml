@@ -1,0 +1,24 @@
+strict: false
+
+range_rules:
+  age:
+    min: 0
+    max: 120
+  salary:
+    min: 0
+    max: 1000000
+
+enum_rules:
+  gender:
+    allowed:
+      - male
+      - female
+
+regex_rules:
+  email:
+    pattern: '^[^@]+@[^@]+\.[^@]+$'
+
+output:
+  output_dir: "examples/expected_outputs"
+  abnormal_records_name: "abnormal_records.json"
+  rule_validation_report_name: "rule_validation_report.json"

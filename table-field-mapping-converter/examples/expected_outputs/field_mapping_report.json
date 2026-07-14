@@ -1,0 +1,9 @@
+{
+  "input_fields": 5,
+  "output_fields": 6,
+  "mapped_fields": 4,
+  "unmapped_fields": 1,
+  "missing_required_fields": 1,
+  "duplicate_target_fields": 0,
+  "empty_target_fields": 0
+}

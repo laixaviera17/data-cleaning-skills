@@ -1,0 +1,4 @@
+record_key,field,before_value,after_value,before_source_row,after_source_row,before_record_hash,after_record_hash
+1,status,有效,valid,,,,
+2,score,70,75,,,,
+2,status,无效,invalid,,,,

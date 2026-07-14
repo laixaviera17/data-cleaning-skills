@@ -1,0 +1,7 @@
+field_name,raw_value,standard_value,allowed,remark
+status,有效,valid,true,状态标准化
+status,无效,invalid,true,状态标准化
+status,禁用,disabled,false,不允许状态
+category,新闻,news,true,类别标准化
+category,财经,finance,true,类别标准化
+missing_field_demo,x,x,true,缺失字段示例

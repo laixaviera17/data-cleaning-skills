@@ -1,0 +1,11 @@
+id,name,age,salary,gender,email,status
+1,Tom,20,12000,male,tom@example.com,active
+2,Alice,-1,15000,female,alice@example.com,active
+3,Bob,999,20000,male,bob@example.com,active
+4,Cindy,30,-100,female,cindy@example.com,active
+5,David,40,2000000,male,david@example.com,active
+6,Eve,25,30000,unknown,eve@example.com,active
+7,Frank,35,40000,male,bad-email,active
+8,Grace,28,50000,female,grace@example.com,active
+9,Henry,60,60000,other,henry@site,active
+10,Iris,45,70000,female,iris@example.com,inactive

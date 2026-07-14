@@ -1,0 +1,4 @@
+id,name,age,salary,gender,email,status
+1,Tom,20,12000,male,tom@example.com,active
+2,Alice,30,15000,female,alice@example.com,active
+3,Bob,45,30000,male,bob@example.com,inactive

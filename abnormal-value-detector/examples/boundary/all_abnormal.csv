@@ -1,0 +1,4 @@
+id,name,age,salary,gender,email,status
+1,Tom,-1,-100,unknown,bad-email,active
+2,Alice,999,2000000,other,alice@site,inactive
+3,Bob,abc,not-number,x,bob,active

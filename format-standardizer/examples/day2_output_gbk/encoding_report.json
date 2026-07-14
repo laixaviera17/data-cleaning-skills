@@ -1,0 +1,12 @@
+{
+  "input_file": "examples/encoding/sample_gbk.csv",
+  "detected_encoding": "gb18030",
+  "target_encoding": "utf-8",
+  "attempted": [
+    "utf-8-sig:ok",
+    "utf-8:ok",
+    "gb18030:ok",
+    "gbk:ok"
+  ],
+  "converted_to_utf8": true
+}

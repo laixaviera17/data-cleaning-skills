@@ -1,0 +1,10 @@
+{
+  "dataset_name": "demo_dataset",
+  "description": "A small cleaned structured dataset for delivery metadata generation.",
+  "version": "1.0.0",
+  "source": "sample",
+  "license": "internal-use",
+  "authorization_type": "controlled",
+  "tags": ["structured", "cleaned", "demo"],
+  "lineage_notes": "Generated from cleaned CSV sample."
+}

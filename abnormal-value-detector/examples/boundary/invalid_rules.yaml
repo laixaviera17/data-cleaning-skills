@@ -1,0 +1,19 @@
+strict: false
+
+range_rules:
+  age:
+    min: abc
+    max: 120
+
+enum_rules:
+  gender:
+    allowed: male
+
+regex_rules:
+  email:
+    pattern: '['
+
+output:
+  output_dir: "examples/boundary/expected_outputs"
+  abnormal_records_name: "abnormal_records.json"
+  rule_validation_report_name: "rule_validation_report.json"

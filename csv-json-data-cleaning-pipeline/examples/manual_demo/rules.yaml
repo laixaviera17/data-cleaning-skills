@@ -1,0 +1,99 @@
+output:
+  output_dir: "examples/manual_demo/output"
+  cleaned_data_name: "cleaned_data.csv"
+  issue_rows_name: "issue_rows.csv"
+  cleaning_summary_name: "cleaning_summary.json"
+  cleaning_log_name: "cleaning_log.csv"
+
+required_fields:
+  - field: "id"
+    allow_blank: false
+    action: "mark"
+  - field: "title"
+    allow_blank: false
+    action: "mark"
+  - field: "content"
+    allow_blank: false
+    action: "mark"
+  - field: "publish_date"
+    allow_blank: false
+    action: "mark"
+
+unique_keys:
+  enabled: true
+  keys:
+    - ["id"]
+    - ["title", "source"]
+  keep: "first"
+  issue_action: "export"
+
+null_handling:
+  null_values:
+    - ""
+    - "N/A"
+    - "未知"
+    - "null"
+  strategies:
+    - field: "source"
+      action: "fill"
+      fill_value: "unknown"
+    - field: "title"
+      action: "mark"
+    - field: "content"
+      action: "mark"
+
+date_rules:
+  enabled: true
+  target_format: "YYYY-MM-DD"
+  fields:
+    - field: "publish_date"
+      input_formats:
+        - "YYYY-MM-DD"
+        - "YYYY/MM/DD"
+        - "YYYY.MM.DD"
+        - "DD-MM-YYYY"
+      invalid_action: "mark"
+
+phone_rules:
+  enabled: true
+  phone_pattern: "^1[3-9][0-9]{9}$"
+  fields:
+    - field: "phone"
+      country_code: "CN"
+      remove_separators: true
+      invalid_action: "mark"
+
+amount_rules:
+  enabled: true
+  amount_precision: 2
+  fields:
+    - field: "amount"
+      decimal_places: 2
+      remove_currency_symbol: true
+      allow_negative: false
+      invalid_action: "set_null"
+
+enum_rules:
+  enabled: true
+  fields:
+    - field: "status"
+      allowed_values:
+        - "valid"
+        - "invalid"
+        - "pending"
+      invalid_action: "mark"
+
+custom_rules:
+  enabled: true
+  rules:
+    - name: "score_range"
+      field: "score"
+      rule_type: "range"
+      min: 0
+      max: 100
+      invalid_action: "mark"
+    - name: "content_min_length"
+      field: "content"
+      rule_type: "min_length"
+      min: 5
+      invalid_action: "mark"

@@ -1,0 +1,8 @@
+{
+  "total_steps": 5,
+  "source_count": 2,
+  "success_steps": 4,
+  "warning_steps": 1,
+  "failed_steps": 0,
+  "total_affected_rows": 41
+}

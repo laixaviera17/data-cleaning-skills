@@ -1,0 +1,5 @@
+id,title,content,publish_date,phone,amount,status,category,source,score,_source_file,_source_row,_batch_id,_rule_version,_record_hash
+1001,新闻标题A,这是一条正常的新闻内容，字段较完整。,2026-06-01,13800138000,120.50,valid,news,site_a,88,examples/sample_input.csv,1,20260624093618,v1,d7742ab8c6fe3ba657fce100eaecaf5ccc1e823e54b741835a545afa9887810a
+1003,医疗标题C,医疗资讯内容较完整，可用于测试。,2026-06-03,13700137000,88.00,pending,medical,site_c,76,examples/sample_input.csv,3,20260624093618,v1,439d470a0b2ffa4d2f3fed8c3501fcb16d76952006c44baa4df3288d5312615e
+1004,法律标题D,法律案例内容完整，字段有效。,2026-06-04,13600136000,1000.50,valid,law,site_d,81,examples/sample_input.csv,4,20260624093618,v1,21f406bd191759c85a38da9c7aae4ba42ec08627860a4cff7f4c1daf16f38c2d
+1005,重复标题E,这条记录用于测试id重复。,2026-06-05,13500135000,50.00,valid,news,site_e,70,examples/sample_input.csv,5,20260624093618,v1,dacaee036ee4ef1d9f133ee8b25039be4df97d5704fe07d524fb6158b2575cb4

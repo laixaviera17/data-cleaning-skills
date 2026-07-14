@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Tom",
+    "age": 20,
+    "salary": 12000,
+    "gender": "male",
+    "email": "tom@example.com",
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "name": "Alice",
+    "age": -1,
+    "salary": 15000,
+    "gender": "female",
+    "email": "alice@example.com",
+    "status": "active"
+  },
+  {
+    "id": 3,
+    "name": "Frank",
+    "age": 35,
+    "salary": 40000,
+    "gender": "male",
+    "email": "bad-email",
+    "status": "active"
+  }
+]

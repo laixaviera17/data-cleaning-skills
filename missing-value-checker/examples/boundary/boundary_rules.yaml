@@ -1,0 +1,20 @@
+required_fields:
+  - id
+  - name
+  - phone
+
+null_values:
+  - ""
+  - "N/A"
+  - "未知"
+
+field_rules:
+  name:
+    action: fill_default
+    value: UNKNOWN
+  phone:
+    action: keep_null
+
+output:
+  output_dir: "examples/expected_outputs"
+  quality_report_name: "quality_report.json"

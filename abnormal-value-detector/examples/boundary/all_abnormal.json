@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "Tom",
+    "age": -1,
+    "salary": -100,
+    "gender": "unknown",
+    "email": "bad-email",
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "name": "Alice",
+    "age": 999,
+    "salary": 2000000,
+    "gender": "other",
+    "email": "alice@site",
+    "status": "inactive"
+  }
+]

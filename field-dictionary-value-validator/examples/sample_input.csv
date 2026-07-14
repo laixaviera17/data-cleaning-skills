@@ -1,0 +1,5 @@
+id,status,category,source
+1,有效,新闻,site_a
+2,无效,财经,site_b
+3,禁用,新闻,site_c
+4,有效,未知类别,site_d

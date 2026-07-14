@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "Tom",
+    "age": 20,
+    "salary": 12000,
+    "gender": "male",
+    "email": "tom@example.com",
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "name": "Alice",
+    "age": 30,
+    "salary": 15000,
+    "gender": "female",
+    "email": "alice@example.com",
+    "status": "active"
+  }
+]

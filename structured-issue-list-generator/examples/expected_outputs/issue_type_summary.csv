@@ -1,0 +1,4 @@
+issue_type,issue_count
+out_of_range,2
+missing_required_source_field,1
+disallowed_dictionary_value,1

@@ -1,0 +1,89 @@
+{
+  "total_rows": 3,
+  "abnormal_count": 12,
+  "abnormal_summary": {
+    "out_of_range": 6,
+    "not_allowed": 3,
+    "regex_not_match": 3
+  },
+  "field_summary": {
+    "age": 3,
+    "salary": 3,
+    "gender": 3,
+    "email": 3
+  },
+  "abnormal_records": [
+    {
+      "row": 1,
+      "field": "age",
+      "value": "-1",
+      "reason": "out_of_range"
+    },
+    {
+      "row": 2,
+      "field": "age",
+      "value": "999",
+      "reason": "out_of_range"
+    },
+    {
+      "row": 3,
+      "field": "age",
+      "value": "abc",
+      "reason": "out_of_range"
+    },
+    {
+      "row": 1,
+      "field": "salary",
+      "value": "-100",
+      "reason": "out_of_range"
+    },
+    {
+      "row": 2,
+      "field": "salary",
+      "value": "2000000",
+      "reason": "out_of_range"
+    },
+    {
+      "row": 3,
+      "field": "salary",
+      "value": "not-number",
+      "reason": "out_of_range"
+    },
+    {
+      "row": 1,
+      "field": "gender",
+      "value": "unknown",
+      "reason": "not_allowed"
+    },
+    {
+      "row": 2,
+      "field": "gender",
+      "value": "other",
+      "reason": "not_allowed"
+    },
+    {
+      "row": 3,
+      "field": "gender",
+      "value": "x",
+      "reason": "not_allowed"
+    },
+    {
+      "row": 1,
+      "field": "email",
+      "value": "bad-email",
+      "reason": "regex_not_match"
+    },
+    {
+      "row": 2,
+      "field": "email",
+      "value": "alice@site",
+      "reason": "regex_not_match"
+    },
+    {
+      "row": 3,
+      "field": "email",
+      "value": "bob",
+      "reason": "regex_not_match"
+    }
+  ]
+}

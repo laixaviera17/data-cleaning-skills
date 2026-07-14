@@ -1,0 +1,20 @@
+row,field,value,issue_type,reason,source_skill,action,record_id,process_result,raw_record
+2,id,2,duplicate,按字段 id 判断为重复记录,csv-json-data-cleaning-pipeline,drop,2,dropped,"{""id"": 2, ""title"": ""重复新闻"", ""content"": ""第二条重复记录应被去重"", ""publish_date"": ""2026-06-02"", ""source"": ""site_a"", ""phone"": ""13800138000"", ""amount"": ""200"", ""status"": ""valid"", ""score"": 90}"
+14,title+source,重复新闻|site_a,duplicate,"按字段 title, source 判断为重复记录",csv-json-data-cleaning-pipeline,drop,14,dropped,"{""id"": 14, ""title"": ""重复新闻"", ""content"": ""第三条重复记录应被去重"", ""publish_date"": ""2026-06-02"", ""source"": ""site_a"", ""phone"": ""13800138000"", ""amount"": ""200"", ""status"": ""valid"", ""score"": 90}"
+4,title,,missing_value,缺失值保留并标记,missing-value-checker,mark,3,marked,"{""id"": 3, ""title"": null, ""content"": ""标题缺失用于演示问题清单"", ""publish_date"": ""2026-06-03"", ""source"": ""site_b"", ""phone"": ""12345"", ""amount"": ""abc"", ""status"": ""done"", ""score"": 101}"
+6,content,,missing_value,缺失值保留并标记,missing-value-checker,mark,5,marked,"{""id"": 5, ""title"": ""空内容"", ""content"": null, ""publish_date"": ""2026/06/05"", ""source"": null, ""phone"": ""136-0013-6000"", ""amount"": ""￥88.80"", ""status"": ""pending"", ""score"": 65}"
+1,source,,missing_value,缺失值已按规则填充,missing-value-checker,fill,1,repaired,"{""id"": 1, ""title"": ""正常新闻"", ""content"": ""这是一条完整内容"", ""publish_date"": ""2026/06/01"", ""source"": null, ""phone"": ""139-0013-9000"", ""amount"": ""¥100.5"", ""status"": ""valid"", ""score"": 88}"
+6,source,,missing_value,缺失值已按规则填充,missing-value-checker,fill,5,repaired,"{""id"": 5, ""title"": ""空内容"", ""content"": null, ""publish_date"": ""2026/06/05"", ""source"": null, ""phone"": ""136-0013-6000"", ""amount"": ""￥88.80"", ""status"": ""pending"", ""score"": 65}"
+9,source,未知,missing_value,缺失值已按规则填充,missing-value-checker,fill,8,repaired,"{""id"": 8, ""title"": ""未知来源"", ""content"": ""来源字段是中文占位值"", ""publish_date"": ""07-06-2026"", ""source"": ""未知"", ""phone"": ""13300133000"", ""amount"": ""1"", ""status"": ""invalid"", ""score"": 55}"
+5,publish_date,not-a-date,standardization_failed,date_standardization_failed,format-standardizer,standardize,,,{}
+4,phone,12345,standardization_failed,phone_standardization_failed,format-standardizer,standardize,,,{}
+13,phone,12900129000,standardization_failed,phone_standardization_failed,format-standardizer,standardize,,,{}
+4,amount,abc,standardization_failed,amount_standardization_failed,format-standardizer,standardize,,,{}
+8,amount,-10,standardization_failed,amount_standardization_failed,format-standardizer,standardize,,,{}
+4,score,101,out_of_range,out_of_range,abnormal-value-detector,detect,,,{}
+11,score,-5,out_of_range,out_of_range,abnormal-value-detector,detect,,,{}
+12,score,120,out_of_range,out_of_range,abnormal-value-detector,detect,,,{}
+4,status,done,not_allowed,not_allowed,abnormal-value-detector,detect,,,{}
+10,status,archived,not_allowed,not_allowed,abnormal-value-detector,detect,,,{}
+6,content,,regex_not_match,regex_not_match,abnormal-value-detector,detect,,,{}
+16,content,短,regex_not_match,regex_not_match,abnormal-value-detector,detect,,,{}

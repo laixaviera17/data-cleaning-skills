@@ -1,0 +1,10 @@
+timestamp,rule_name,action,affected_rows,result
+2026-06-24 09:30:07,load_input,check,16,success
+2026-06-24 09:30:07,unique_keys,drop,2,success
+2026-06-24 09:30:07,missing-value-checker,repair,5,success
+2026-06-24 09:30:07,required_fields,check,0,success
+2026-06-24 09:30:07,null_handling,process,5,success
+2026-06-24 09:30:07,format-standardizer,standardize,37,success
+2026-06-24 09:30:07,abnormal-value-detector,detect,7,success
+2026-06-24 09:30:07,quarantine_unrepaired_rows,drop,8,success
+2026-06-24 09:30:07,export_outputs,export,19,success

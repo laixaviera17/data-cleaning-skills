@@ -1,0 +1,52 @@
+date_rules:
+  enable: true
+  strict: true
+  fields:
+    - publish_date
+
+phone_rules:
+  enable: true
+  strict: true
+  country_code: "86"
+  fields:
+    - phone
+
+amount_rules:
+  enable: true
+  strict: true
+  decimal_places: 2
+  fields:
+    - amount
+
+id_card_rules:
+  enable: true
+  strict: true
+  fields:
+    - id_card
+
+unit_rules:
+  enable: true
+  strict: true
+  fields:
+    - field: weight
+      unit_type: weight
+      target_unit: g
+      decimal_places: 1
+    - field: length
+      unit_type: length
+      target_unit: m
+      decimal_places: 2
+    - field: time_cost
+      unit_type: time
+      target_unit: min
+      decimal_places: 1
+
+encoding_rules:
+  detect_order: ["utf-8-sig", "utf-8", "gb18030", "gbk"]
+
+output:
+  output_dir: "examples/expected_outputs"
+  standardization_report_name: "standardization_report.json"
+  abnormal_records_name: "abnormal_records.json"
+  encoding_report_name: "encoding_report.json"
+  standardized_data_name: "standardized_data.csv"

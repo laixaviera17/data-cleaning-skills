@@ -1,0 +1,4 @@
+row,field_name,value,issue_type,reason,action,remark
+4,category,未知类别,unknown_dictionary_value,字段值未在字典中配置: 未知类别,report,
+,missing_field_demo,,missing_field,字典字段不存在于输入数据: missing_field_demo,report,
+3,status,禁用,disallowed_dictionary_value,字段值在字典中被标记为不允许: 禁用,report,不允许状态

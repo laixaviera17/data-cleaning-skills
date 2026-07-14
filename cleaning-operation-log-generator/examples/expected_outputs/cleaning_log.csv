@@ -1,0 +1,6 @@
+timestamp,step,rule_name,action,affected_rows,result,message,source_skill,input_count,output_count
+2026-06-16 10:00:00,load_input,load_input,check,25,success,,csv-json-data-cleaning-pipeline,,
+2026-06-16 10:00:01,format-standardizer,format-standardizer,standardize,5,warning,,csv-json-data-cleaning-pipeline,,
+2026-06-16 10:00:02,export_outputs,export_outputs,export,4,success,,csv-json-data-cleaning-pipeline,,
+2026-06-16 10:00:03,dictionary_validation,dictionary_validation,standardize,3,success,标准化字典值,field-dictionary-value-validator,25,25
+2026-06-16 10:00:04,issue_list_generation,issue_list_generation,export,4,success,生成统一问题清单,field-dictionary-value-validator,4,4

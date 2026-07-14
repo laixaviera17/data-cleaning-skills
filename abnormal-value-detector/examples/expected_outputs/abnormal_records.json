@@ -1,0 +1,89 @@
+{
+  "total_rows": 10,
+  "abnormal_count": 8,
+  "abnormal_summary": {
+    "out_of_range": 4,
+    "not_allowed": 2,
+    "regex_not_match": 2
+  },
+  "field_summary": {
+    "age": 2,
+    "salary": 2,
+    "gender": 2,
+    "email": 2
+  },
+  "abnormal_records": [
+    {
+      "row": 2,
+      "field": "age",
+      "value": -1,
+      "issue_type": "out_of_range",
+      "reason": "out_of_range",
+      "source_skill": "abnormal-value-detector",
+      "action": "detect"
+    },
+    {
+      "row": 3,
+      "field": "age",
+      "value": 999,
+      "issue_type": "out_of_range",
+      "reason": "out_of_range",
+      "source_skill": "abnormal-value-detector",
+      "action": "detect"
+    },
+    {
+      "row": 4,
+      "field": "salary",
+      "value": -100,
+      "issue_type": "out_of_range",
+      "reason": "out_of_range",
+      "source_skill": "abnormal-value-detector",
+      "action": "detect"
+    },
+    {
+      "row": 5,
+      "field": "salary",
+      "value": 2000000,
+      "issue_type": "out_of_range",
+      "reason": "out_of_range",
+      "source_skill": "abnormal-value-detector",
+      "action": "detect"
+    },
+    {
+      "row": 6,
+      "field": "gender",
+      "value": "unknown",
+      "issue_type": "not_allowed",
+      "reason": "not_allowed",
+      "source_skill": "abnormal-value-detector",
+      "action": "detect"
+    },
+    {
+      "row": 9,
+      "field": "gender",
+      "value": "other",
+      "issue_type": "not_allowed",
+      "reason": "not_allowed",
+      "source_skill": "abnormal-value-detector",
+      "action": "detect"
+    },
+    {
+      "row": 7,
+      "field": "email",
+      "value": "bad-email",
+      "issue_type": "regex_not_match",
+      "reason": "regex_not_match",
+      "source_skill": "abnormal-value-detector",
+      "action": "detect"
+    },
+    {
+      "row": 9,
+      "field": "email",
+      "value": "henry@site",
+      "issue_type": "regex_not_match",
+      "reason": "regex_not_match",
+      "source_skill": "abnormal-value-detector",
+      "action": "detect"
+    }
+  ]
+}

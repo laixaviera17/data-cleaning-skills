@@ -1,0 +1,4 @@
+id,name,status,_source_file,_source_row,_record_hash,_batch_id,_rule_version
+1,张三,有效,raw.csv,1,hash_a,batch_1,v1
+2,李四,无效,raw.csv,2,hash_b,batch_1,v1
+3,王五,有效,raw.csv,3,hash_c,batch_1,v1

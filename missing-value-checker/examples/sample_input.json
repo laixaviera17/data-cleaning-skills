@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Tom",
+    "age": 20,
+    "phone": "13800138000",
+    "email": "tom@example.com",
+    "country": "USA"
+  },
+  {
+    "id": 2,
+    "name": "",
+    "age": null,
+    "phone": "N/A",
+    "email": "alice@example.com",
+    "country": ""
+  },
+  {
+    "id": 3,
+    "name": "Chen",
+    "age": "未知",
+    "phone": "13700137000",
+    "email": "",
+    "country": "N/A"
+  }
+]

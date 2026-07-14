@@ -1,0 +1,9 @@
+record_key,field,before_value,after_value,before_source_row,after_source_row,before_record_hash,after_record_hash
+1,_batch_id,batch_1,batch_2,1,1,hash_a,hash_a2
+1,_record_hash,hash_a,hash_a2,1,1,hash_a,hash_a2
+1,_rule_version,v1,v2,1,1,hash_a,hash_a2
+1,status,有效,valid,1,1,hash_a,hash_a2
+2,_batch_id,batch_1,batch_2,2,2,hash_b,hash_b2
+2,_record_hash,hash_b,hash_b2,2,2,hash_b,hash_b2
+2,_rule_version,v1,v2,2,2,hash_b,hash_b2
+2,status,无效,invalid,2,2,hash_b,hash_b2

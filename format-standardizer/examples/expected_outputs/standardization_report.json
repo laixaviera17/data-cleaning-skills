@@ -1,0 +1,222 @@
+{
+  "total_rows": 5,
+  "standardized_cells": 27,
+  "failed_cells": 8,
+  "missing_fields": [],
+  "abnormal_records": [
+    {
+      "row": 5,
+      "field": "publish_date",
+      "value": "bad-date",
+      "issue_type": "standardization_failed",
+      "reason": "date_standardization_failed",
+      "source_skill": "format-standardizer",
+      "action": "standardize"
+    },
+    {
+      "row": 5,
+      "field": "phone",
+      "value": "12345",
+      "issue_type": "standardization_failed",
+      "reason": "phone_standardization_failed",
+      "source_skill": "format-standardizer",
+      "action": "standardize"
+    },
+    {
+      "row": 5,
+      "field": "amount",
+      "value": "abc",
+      "issue_type": "standardization_failed",
+      "reason": "amount_standardization_failed",
+      "source_skill": "format-standardizer",
+      "action": "standardize"
+    },
+    {
+      "row": 3,
+      "field": "id_card",
+      "value": "invalid-id",
+      "issue_type": "standardization_failed",
+      "reason": "id_card_standardization_failed",
+      "source_skill": "format-standardizer",
+      "action": "standardize"
+    },
+    {
+      "row": 5,
+      "field": "id_card",
+      "value": "12345",
+      "issue_type": "standardization_failed",
+      "reason": "id_card_standardization_failed",
+      "source_skill": "format-standardizer",
+      "action": "standardize"
+    },
+    {
+      "row": 5,
+      "field": "weight",
+      "value": "bad",
+      "issue_type": "standardization_failed",
+      "reason": "unit_standardization_failed",
+      "source_skill": "format-standardizer",
+      "action": "standardize"
+    },
+    {
+      "row": 5,
+      "field": "length",
+      "value": "??",
+      "issue_type": "standardization_failed",
+      "reason": "unit_standardization_failed",
+      "source_skill": "format-standardizer",
+      "action": "standardize"
+    },
+    {
+      "row": 5,
+      "field": "time_cost",
+      "value": "abc",
+      "issue_type": "standardization_failed",
+      "reason": "unit_standardization_failed",
+      "source_skill": "format-standardizer",
+      "action": "standardize"
+    }
+  ],
+  "field_stats": {
+    "publish_date": {
+      "type": "date",
+      "total_cells": 5,
+      "standardized_cells": 4,
+      "failed_cells": 1
+    },
+    "phone": {
+      "type": "phone",
+      "total_cells": 5,
+      "standardized_cells": 4,
+      "failed_cells": 1
+    },
+    "amount": {
+      "type": "amount",
+      "total_cells": 5,
+      "standardized_cells": 4,
+      "failed_cells": 1
+    },
+    "id_card": {
+      "type": "id_card",
+      "total_cells": 5,
+      "standardized_cells": 3,
+      "failed_cells": 2
+    },
+    "weight": {
+      "type": "unit",
+      "total_cells": 5,
+      "standardized_cells": 4,
+      "failed_cells": 1
+    },
+    "length": {
+      "type": "unit",
+      "total_cells": 5,
+      "standardized_cells": 4,
+      "failed_cells": 1
+    },
+    "time_cost": {
+      "type": "unit",
+      "total_cells": 5,
+      "standardized_cells": 4,
+      "failed_cells": 1
+    }
+  },
+  "unit_conversion_records": [
+    {
+      "field": "weight",
+      "original_value": "1.5kg",
+      "target_value": "1500.0g",
+      "rule": "weight:kg->g",
+      "row": 1
+    },
+    {
+      "field": "weight",
+      "original_value": "650g",
+      "target_value": "650.0g",
+      "rule": "weight:g->g",
+      "row": 2
+    },
+    {
+      "field": "weight",
+      "original_value": "1200mg",
+      "target_value": "1.2g",
+      "rule": "weight:mg->g",
+      "row": 3
+    },
+    {
+      "field": "weight",
+      "original_value": "0.2t",
+      "target_value": "200000.0g",
+      "rule": "weight:t->g",
+      "row": 4
+    },
+    {
+      "field": "length",
+      "original_value": "300cm",
+      "target_value": "3.00m",
+      "rule": "length:cm->m",
+      "row": 1
+    },
+    {
+      "field": "length",
+      "original_value": "2km",
+      "target_value": "2000.00m",
+      "rule": "length:km->m",
+      "row": 2
+    },
+    {
+      "field": "length",
+      "original_value": "1500mm",
+      "target_value": "1.50m",
+      "rule": "length:mm->m",
+      "row": 3
+    },
+    {
+      "field": "length",
+      "original_value": "1m",
+      "target_value": "1.00m",
+      "rule": "length:m->m",
+      "row": 4
+    },
+    {
+      "field": "time_cost",
+      "original_value": "2h",
+      "target_value": "120.0min",
+      "rule": "time:h->min",
+      "row": 1
+    },
+    {
+      "field": "time_cost",
+      "original_value": "30min",
+      "target_value": "30.0min",
+      "rule": "time:min->min",
+      "row": 2
+    },
+    {
+      "field": "time_cost",
+      "original_value": "3600s",
+      "target_value": "60.0min",
+      "rule": "time:s->min",
+      "row": 3
+    },
+    {
+      "field": "time_cost",
+      "original_value": "1d",
+      "target_value": "1440.0min",
+      "rule": "time:d->min",
+      "row": 4
+    }
+  ],
+  "encoding_report": {
+    "input_file": "examples/sample_input.csv",
+    "detected_encoding": "utf-8-sig",
+    "target_encoding": "utf-8",
+    "attempted": [
+      "utf-8-sig:ok",
+      "utf-8:ok",
+      "gb18030:fail",
+      "gbk:fail"
+    ],
+    "converted_to_utf8": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "total_rows": 4,
+  "abnormal_count": 1,
+  "abnormal_records": [
+    {
+      "row": 3,
+      "field": "score",
+      "value": 120,
+      "issue_type": "out_of_range",
+      "reason": "out_of_range",
+      "source_skill": "abnormal-value-detector",
+      "action": "detect"
+    }
+  ]
+}

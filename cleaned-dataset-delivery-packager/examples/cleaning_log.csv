@@ -1,0 +1,2 @@
+timestamp,step,rule_name,action,affected_rows,result,message
+2026-06-17T00:00:00Z,missing,fill_name,fill,1,success,filled missing name

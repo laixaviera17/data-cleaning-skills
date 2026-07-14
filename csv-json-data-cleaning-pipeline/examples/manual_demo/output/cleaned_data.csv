@@ -1,0 +1,7 @@
+id,title,content,publish_date,source,phone,amount,status,score,_source_file,_source_row,_batch_id,_rule_version,_record_hash
+1,正常新闻,这是一条完整内容,2026-06-01,unknown,13900139000,100.50,valid,88,examples/manual_demo/input_dirty.csv,1,20260624093007,v1,b047c74aeef92212c5faa4a78f736d188f039b98bdee70fa5e89bc545346109e
+2,重复新闻,第一条重复记录,2026-06-02,site_a,13800138000,200.00,valid,90,examples/manual_demo/input_dirty.csv,2,20260624093007,v1,34a208e0f10c45b69f3d6e41b25904af0baf113fe9e773625d9819a2ccd52d8b
+6,手机号带空格,手机号可清洗但格式杂乱,2026-06-06,site_d,13500135000,66.60,valid,76,examples/manual_demo/input_dirty.csv,7,20260624093007,v1,8d1954288b089a2d683471addfd95286ca8cd8bf3a9866748c290751f096a1f6
+7,金额负数,金额为负数用于异常演示,2026-06-07,site_e,13400134000,,valid,80,examples/manual_demo/input_dirty.csv,8,20260624093007,v1,094ec5e9557bdaa953ec903d9a522bb9474047b63410395e337497654245c0fa
+8,未知来源,来源字段是中文占位值,2026-06-07,unknown,13300133000,1.00,invalid,55,examples/manual_demo/input_dirty.csv,9,20260624093007,v1,e515a5d2ee4a96811616d62f7c1d96065da9eef3344ce71399596e392683b7f2
+13,邮箱样例,内容正常但金额带千分位,2026-06-13,site_j,13888880000,1234.56,valid,92,examples/manual_demo/input_dirty.csv,14,20260624093007,v1,9172e66f51f788498c7992e38da4567d2f14e9bf07be19ab43e7dc1c7b08a499

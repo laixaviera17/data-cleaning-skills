@@ -1,0 +1,4 @@
+interface:
+  display_name: "Structured Issue List Generator"
+  short_description: "Normalize data cleaning issue lists."
+  default_prompt: "Use $structured-issue-list-generator to merge and normalize data cleaning issue outputs into a standard issue_rows.csv file."

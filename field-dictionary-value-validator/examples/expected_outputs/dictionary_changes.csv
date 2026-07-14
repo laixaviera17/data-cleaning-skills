@@ -1,0 +1,7 @@
+row,field_name,raw_value,standard_value,remark
+1,category,新闻,news,类别标准化
+2,category,财经,finance,类别标准化
+3,category,新闻,news,类别标准化
+1,status,有效,valid,状态标准化
+2,status,无效,invalid,状态标准化
+4,status,有效,valid,状态标准化

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dataset Documentation Generator"
+  short_description: "Generate human-readable dataset documentation."
+  default_prompt: "Use $dataset-documentation-generator to generate a dataset README from cleaned data, schema, quality reports, issues, and logs."

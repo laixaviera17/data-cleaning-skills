@@ -1,0 +1,49 @@
+{
+  "total_rows": 5,
+  "standardized_cells": 12,
+  "failed_cells": 3,
+  "missing_fields": [],
+  "abnormal_records": [
+    {
+      "row_index": 4,
+      "field": "publish_date",
+      "type": "date",
+      "original_value": "bad-date",
+      "reason": "无法标准化"
+    },
+    {
+      "row_index": 4,
+      "field": "phone",
+      "type": "phone",
+      "original_value": "12345",
+      "reason": "无法标准化"
+    },
+    {
+      "row_index": 4,
+      "field": "amount",
+      "type": "amount",
+      "original_value": "abc",
+      "reason": "无法标准化"
+    }
+  ],
+  "field_stats": {
+    "publish_date": {
+      "type": "date",
+      "total_cells": 5,
+      "standardized_cells": 4,
+      "failed_cells": 1
+    },
+    "phone": {
+      "type": "phone",
+      "total_cells": 5,
+      "standardized_cells": 4,
+      "failed_cells": 1
+    },
+    "amount": {
+      "type": "amount",
+      "total_cells": 5,
+      "standardized_cells": 4,
+      "failed_cells": 1
+    }
+  }
+}

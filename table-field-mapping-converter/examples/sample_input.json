@@ -1,0 +1,16 @@
+[
+  {
+    "user_id": "1001",
+    "user_name": "张三",
+    "phone_no": "13800138000",
+    "signup_date": "2026-06-01",
+    "source": "site_a"
+  },
+  {
+    "user_id": "1002",
+    "user_name": "李四",
+    "phone_no": "13900139000",
+    "signup_date": "2026-06-02",
+    "source": "site_b"
+  }
+]

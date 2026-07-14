@@ -1,0 +1,15 @@
+{
+  "input_rows": 25,
+  "output_rows": 4,
+  "removed_rows": 20,
+  "duplicate_rows": 2,
+  "duplicate_exact_rows": 2,
+  "duplicate_similarity_rows": 0,
+  "quarantined_rows": 18,
+  "null_rows": 3,
+  "null_dropped_rows": 1,
+  "null_repaired_rows": 1,
+  "abnormal_rows": 27,
+  "repaired_rows": 49,
+  "issue_rows": 32
+}

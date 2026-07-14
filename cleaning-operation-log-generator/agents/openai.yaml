@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cleaning Operation Log Generator"
+  short_description: "Normalize and summarize cleaning logs."
+  default_prompt: "Use $cleaning-operation-log-generator to normalize, merge, and summarize structured data cleaning logs."

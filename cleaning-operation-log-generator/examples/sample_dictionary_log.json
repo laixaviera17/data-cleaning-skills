@@ -1,0 +1,24 @@
+{
+  "cleaning_log": [
+    {
+      "timestamp": "2026-06-16 10:00:03",
+      "step": "dictionary_validation",
+      "action": "standardize",
+      "affected_rows": 3,
+      "result": "success",
+      "message": "标准化字典值",
+      "input_count": 25,
+      "output_count": 25
+    },
+    {
+      "timestamp": "2026-06-16 10:00:04",
+      "step": "issue_list_generation",
+      "action": "export",
+      "affected_rows": 4,
+      "result": "success",
+      "message": "生成统一问题清单",
+      "input_count": 4,
+      "output_count": 4
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "total_rows": 1,
+  "standardized_cells": 7,
+  "failed_cells": 0,
+  "missing_fields": [],
+  "abnormal_records": [],
+  "field_stats": {
+    "publish_date": {
+      "type": "date",
+      "total_cells": 1,
+      "standardized_cells": 1,
+      "failed_cells": 0
+    },
+    "phone": {
+      "type": "phone",
+      "total_cells": 1,
+      "standardized_cells": 1,
+      "failed_cells": 0
+    },
+    "amount": {
+      "type": "amount",
+      "total_cells": 1,
+      "standardized_cells": 1,
+      "failed_cells": 0
+    },
+    "id_card": {
+      "type": "id_card",
+      "total_cells": 1,
+      "standardized_cells": 1,
+      "failed_cells": 0
+    },
+    "weight": {
+      "type": "unit",
+      "total_cells": 1,
+      "standardized_cells": 1,
+      "failed_cells": 0
+    },
+    "length": {
+      "type": "unit",
+      "total_cells": 1,
+      "standardized_cells": 1,
+      "failed_cells": 0
+    },
+    "time_cost": {
+      "type": "unit",
+      "total_cells": 1,
+      "standardized_cells": 1,
+      "failed_cells": 0
+    }
+  },
+  "unit_conversion_records": [
+    {
+      "field": "weight",
+      "original_value": "1kg",
+      "target_value": "1000.0g",
+      "rule": "weight:kg->g",
+      "row": 1
+    },
+    {
+      "field": "length",
+      "original_value": "100cm",
+      "target_value": "1.00m",
+      "rule": "length:cm->m",
+      "row": 1
+    },
+    {
+      "field": "time_cost",
+      "original_value": "1h",
+      "target_value": "60.0min",
+      "rule": "time:h->min",
+      "row": 1
+    }
+  ],
+  "encoding_report": {
+    "input_file": "examples/encoding/sample_utf8_bom.csv",
+    "detected_encoding": "utf-8-sig",
+    "target_encoding": "utf-8",
+    "attempted": [
+      "utf-8-sig:bom"
+    ],
+    "converted_to_utf8": true
+  }
+}

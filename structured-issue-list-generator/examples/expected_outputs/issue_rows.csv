@@ -1,0 +1,5 @@
+row,field,value,issue_type,reason,source_skill,action,record_id,process_result,raw_record
+1,age,999,out_of_range,out_of_range,abnormal-value-detector,detect,,,
+,country,,missing_required_source_field,源字段不存在: country,table-field-mapping-converter,fill_default,,,"{""target_field"": ""country_code""}"
+2,status,禁用,disallowed_dictionary_value,字段值在字典中被标记为不允许: 禁用,field-dictionary-value-validator,report,,,
+3,score,120,out_of_range,out_of_range,abnormal-value-detector,detect,,,

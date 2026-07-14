@@ -1,0 +1,35 @@
+required_fields:
+  - id
+  - name
+  - age
+  - phone
+  - email
+  - country
+  - address
+
+null_values:
+  - ""
+  - "null"
+  - "N/A"
+  - "NA"
+  - "未知"
+
+field_rules:
+  name:
+    action: fill_default
+    value: UNKNOWN
+  age:
+    action: median
+  country:
+    action: fill_custom
+    value: CHINA
+  address:
+    action: ffill
+  phone:
+    action: bfill
+  email:
+    action: drop
+
+output:
+  output_dir: "examples/expected_outputs"
+  quality_report_name: "quality_report.json"

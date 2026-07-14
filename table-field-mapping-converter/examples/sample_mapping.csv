@@ -1,0 +1,6 @@
+source_field,target_field,target_type,required,default_value,description
+user_id,id,string,true,,用户唯一编号
+user_name,name,string,true,,用户姓名
+phone_no,phone,string,false,,手机号
+source,source_name,string,false,,来源站点
+country,country_code,string,true,CN,国家代码

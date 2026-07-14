@@ -1,0 +1,2 @@
+record_key,source_row,record_hash,raw_record
+4,4,hash_d,"{""id"": 4, ""name"": ""赵六"", ""status"": ""valid"", ""_source_file"": ""raw.csv"", ""_source_row"": 4, ""_record_hash"": ""hash_d"", ""_batch_id"": ""batch_2"", ""_rule_version"": ""v2""}"

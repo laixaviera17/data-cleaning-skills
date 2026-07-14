@@ -1,0 +1,4 @@
+interface:
+  display_name: "CSV JSON Data Cleaning Pipeline"
+  short_description: "Run multi-step dataset cleaning pipelines."
+  default_prompt: "Use $csv-json-data-cleaning-pipeline to run an end-to-end CSV, JSON, or JSONL cleaning workflow with rules and delivery summaries."

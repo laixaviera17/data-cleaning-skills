@@ -1,0 +1,12 @@
+{
+  "input_file": "examples/sample_input.csv",
+  "detected_encoding": "utf-8-sig",
+  "target_encoding": "utf-8",
+  "attempted": [
+    "utf-8-sig:ok",
+    "utf-8:ok",
+    "gb18030:fail",
+    "gbk:fail"
+  ],
+  "converted_to_utf8": true
+}

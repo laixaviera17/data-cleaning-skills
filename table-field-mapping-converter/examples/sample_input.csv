@@ -1,0 +1,4 @@
+user_id,user_name,phone_no,signup_date,source
+1001,张三,13800138000,2026-06-01,site_a
+1002,李四,13900139000,2026-06-02,site_b
+1003,王五,13700137000,2026-06-03,site_c

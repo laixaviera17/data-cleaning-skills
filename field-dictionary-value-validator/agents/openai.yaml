@@ -1,0 +1,4 @@
+interface:
+  display_name: "Field Dictionary Value Validator"
+  short_description: "Validate dataset values against dictionaries."
+  default_prompt: "Use $field-dictionary-value-validator to validate, standardize, or repair structured field values using a data dictionary."

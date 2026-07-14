@@ -1,0 +1,11 @@
+{
+  "input_rows": 16,
+  "output_rows": 6,
+  "removed_rows": 10,
+  "duplicate_rows": 2,
+  "quarantined_rows": 8,
+  "null_rows": 5,
+  "abnormal_rows": 12,
+  "repaired_rows": 40,
+  "issue_rows": 19
+}

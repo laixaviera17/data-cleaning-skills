@@ -1,0 +1,6 @@
+id,name,age,phone,email,country,address
+1,Tom,20,13800138000,tom@example.com,USA,Beijing
+2,Alice,,13900139000,alice@example.com,,Shanghai
+3,,25,N/A,bob@example.com,N/A,
+4,Chen,未知,13700137000,,Japan,Tokyo
+5,N/A,30,,chen@example.com,,

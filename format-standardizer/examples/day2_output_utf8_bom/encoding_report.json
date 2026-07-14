@@ -1,0 +1,9 @@
+{
+  "input_file": "examples/encoding/sample_utf8_bom.csv",
+  "detected_encoding": "utf-8-sig",
+  "target_encoding": "utf-8",
+  "attempted": [
+    "utf-8-sig:bom"
+  ],
+  "converted_to_utf8": true
+}

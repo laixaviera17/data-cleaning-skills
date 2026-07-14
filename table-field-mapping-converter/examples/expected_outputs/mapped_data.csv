@@ -1,0 +1,4 @@
+id,name,phone,signup_date,source_name,country_code
+1001,张三,13800138000,2026-06-01,site_a,CN
+1002,李四,13900139000,2026-06-02,site_b,CN
+1003,王五,13700137000,2026-06-03,site_c,CN
