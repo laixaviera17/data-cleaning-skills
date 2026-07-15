@@ -1,4 +1,0 @@
-interface:
-  display_name: "Missing Value Checker"
-  short_description: "Check and repair missing dataset values."
-  default_prompt: "Use $missing-value-checker to check required fields, missing columns, and missing values in a CSV or JSON dataset."

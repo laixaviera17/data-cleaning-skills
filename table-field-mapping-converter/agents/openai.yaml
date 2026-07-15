@@ -1,4 +1,0 @@
-interface:
-  display_name: "Table Field Mapping Converter"
-  short_description: "Rename or map structured dataset fields."
-  default_prompt: "Use $table-field-mapping-converter to rename or map CSV, JSON, or JSONL fields with a source-to-target mapping file."

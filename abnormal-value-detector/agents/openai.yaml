@@ -1,4 +1,0 @@
-interface:
-  display_name: "Abnormal Value Detector"
-  short_description: "Detect abnormal structured data values."
-  default_prompt: "Use $abnormal-value-detector to detect invalid range, enum, or regex values in a CSV or JSON dataset."

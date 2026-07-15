@@ -1,8 +1,8 @@
-# Data Cleaning Skills
+# Data Cleaning Toolkit
 
-一套用于 CSV、JSON 和 JSONL 数据清洗、质量检查与交付的模块化工具链。项目将单项规则拆分为独立 Skill，并通过端到端流水线组合执行，输出清洗结果、问题记录、操作日志和交付资料。
+一套用于 CSV、JSON 和 JSONL 数据清洗、质量检查与交付的模块化工具链。项目将单项规则拆分为独立模块，并通过端到端流水线组合执行，输出清洗结果、问题记录、操作日志和交付资料。
 
-所有示例均为本地构造数据。本项目不连接生产数据源，也不包含机器学习或大模型推理能力。
+所有示例均为本地构造数据，本项目不连接生产数据源。
 
 ## 模块划分
 
@@ -13,7 +13,7 @@
 | 过程追踪 | `structured-issue-list-generator`、`cleaning-operation-log-generator`、`dataset-before-after-diff-comparator` |
 | 交付 | `dataset-documentation-generator`、`dataset-catalog-metadata-generator`、`cleaned-dataset-delivery-packager` |
 
-每个 Skill 目录包含 `SKILL.md`、可运行脚本、测试、示例数据和 `agents/openai.yaml` 元数据。
+每个模块目录包含使用说明、可运行脚本、测试和示例数据。
 
 ## 快速开始
 
@@ -36,7 +36,7 @@ cd csv-json-data-cleaning-pipeline
 
 ## 已验证范围
 
-本项目已包含模块级测试和工作区集成测试。2026-07-14 的本地 QA 结果为：12 个 Skill、150 个测试全部通过；脚本覆盖率估算为 65.7%。在提交或修改后，请以上述命令重新生成报告。
+本项目已包含模块级测试和工作区集成测试。2026-07-14 的本地 QA 结果为：12 个模块、150 个测试全部通过；脚本覆盖率估算为 65.7%。在提交或修改后，请以上述命令重新生成报告。
 
 ## 使用边界
 

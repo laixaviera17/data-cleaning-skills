@@ -1,4 +1,0 @@
-interface:
-  display_name: "Format Standardizer"
-  short_description: "Standardize date, phone, and amount formats."
-  default_prompt: "Use $format-standardizer to standardize date, phone number, and amount fields in a CSV or JSON dataset."

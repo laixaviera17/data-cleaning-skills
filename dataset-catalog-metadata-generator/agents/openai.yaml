@@ -1,4 +1,0 @@
-interface:
-  display_name: "Dataset Catalog Metadata Generator"
-  short_description: "Generate machine-readable dataset catalog metadata."
-  default_prompt: "Use $dataset-catalog-metadata-generator to generate catalog metadata JSON for a cleaned dataset, including schema, file inventory, quality summary, and lineage."

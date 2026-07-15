@@ -1,4 +1,0 @@
-interface:
-  display_name: "Cleaned Dataset Delivery Packager"
-  short_description: "Package cleaned datasets and delivery artifacts."
-  default_prompt: "Use $cleaned-dataset-delivery-packager to package a cleaned dataset with reports, logs, metadata, and a manifest for delivery."
