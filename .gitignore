@@ -11,6 +11,7 @@ qa/reports/
 delivery_package.zip
 outputs/
 demo_outputs/
+demo/output/
 tmp/
 dist/
 build/

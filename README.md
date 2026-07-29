@@ -4,6 +4,18 @@
 
 所有示例均为本地构造数据，本项目不连接生产数据源。
 
+## 2 分钟体验
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+```bash
+python scripts/run_recruiter_demo.py
+```
+
+命令使用仓库内 16 行模拟脏数据，生成 `demo/output/`：清洗后数据、问题清单、清洗日志、汇总结果和可校验的交付包清单。运行产物不纳入 Git。
+
 ## 模块划分
 
 | 类别 | 模块 |
