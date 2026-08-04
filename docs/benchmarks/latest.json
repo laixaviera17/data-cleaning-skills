@@ -1,0 +1,13 @@
+{
+  "benchmark": "in_memory_default_pipeline",
+  "data_classification": "deterministic_synthetic",
+  "python": "3.12.13",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "rows": 10000,
+  "iterations": 3,
+  "median_seconds": 2.296133,
+  "rows_per_second": 4355.15,
+  "peak_python_memory_mb": 11.03,
+  "output_rows": 8420,
+  "durations_seconds": [2.702244, 2.296133, 2.221038]
+}

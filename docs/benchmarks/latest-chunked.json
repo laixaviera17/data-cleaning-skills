@@ -1,0 +1,14 @@
+{
+  "benchmark": "chunked_csv_default_pipeline",
+  "data_classification": "deterministic_synthetic",
+  "python": "3.12.13",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "rows": 100000,
+  "chunksize": 10000,
+  "chunk_count": 10,
+  "seconds": 31.29464,
+  "rows_per_second": 3195.44,
+  "peak_python_memory_mb": 30.34,
+  "output_rows": 84192,
+  "cross_chunk_duplicate_rows": 0
+}
