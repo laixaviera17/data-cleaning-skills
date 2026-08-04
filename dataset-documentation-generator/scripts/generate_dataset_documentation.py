@@ -84,11 +84,7 @@ def summarize_report(path: str | Path) -> dict:
     if suffix == ".json":
         value = json.loads(report_path.read_text(encoding="utf-8"))
         if isinstance(value, dict):
-            simple = {
-                key: val
-                for key, val in value.items()
-                if isinstance(val, (str, int, float, bool)) or val is None
-            }
+            simple = {key: val for key, val in value.items() if isinstance(val, (str, int, float, bool)) or val is None}
             return {"path": str(report_path), "type": "json", "summary": simple}
     if suffix == ".csv":
         with report_path.open(newline="", encoding="utf-8") as handle:
@@ -98,7 +94,13 @@ def summarize_report(path: str | Path) -> dict:
     return {"path": str(report_path), "type": suffix.lstrip(".") or "unknown"}
 
 
-def generate_markdown(dataset_name: str, data_path: Path, records: list[dict], reports: list[dict]) -> str:
+def generate_markdown(
+    dataset_name: str,
+    data_path: Path,
+    records: list[dict],
+    reports: list[dict],
+    generated_at: str | None = None,
+) -> str:
     fields = schema_summary(records)
     lines = [
         f"# {dataset_name} 数据集说明文档",
@@ -107,7 +109,7 @@ def generate_markdown(dataset_name: str, data_path: Path, records: list[dict], r
         "",
         f"- 数据集名称：{dataset_name}",
         f"- 数据文件：{data_path.name}",
-        f"- 生成时间：{datetime.now(timezone.utc).isoformat()}",
+        f"- 生成时间：{generated_at or datetime.now(timezone.utc).isoformat()}",
         f"- 记录数：{len(records)}",
         f"- 字段数：{len(fields)}",
         "",
@@ -141,14 +143,16 @@ def generate_markdown(dataset_name: str, data_path: Path, records: list[dict], r
         lines.append("")
 
     field_type_count = Counter(field["type"] for field in fields)
-    lines.extend([
-        "## 应用说明",
-        "",
-        "该文档用于交付阶段说明数据集基本信息、内容特征和建设过程摘要。实际使用时应结合授权协议、目录元数据和质量评测报告判断适用范围。",
-        "",
-        "## 字段类型统计",
-        "",
-    ])
+    lines.extend(
+        [
+            "## 应用说明",
+            "",
+            "该文档用于交付阶段说明数据集基本信息、内容特征和建设过程摘要。实际使用时应结合授权协议、目录元数据和质量评测报告判断适用范围。",
+            "",
+            "## 字段类型统计",
+            "",
+        ]
+    )
     for field_type, count in sorted(field_type_count.items()):
         lines.append(f"- {field_type}: {count}")
     lines.append("")
@@ -160,6 +164,7 @@ def generate_dataset_documentation(
     output_dir: str | Path,
     dataset_name: str | None = None,
     reports: list[str | Path] | None = None,
+    generated_at: str | None = None,
 ) -> dict:
     data = Path(data_path).expanduser().resolve()
     records = load_records(data)
@@ -167,7 +172,7 @@ def generate_dataset_documentation(
     output = Path(output_dir).expanduser().resolve()
     output.mkdir(parents=True, exist_ok=True)
     name = dataset_name or data.stem
-    markdown = generate_markdown(name, data, records, report_summaries)
+    markdown = generate_markdown(name, data, records, report_summaries, generated_at=generated_at)
     readme_path = output / "dataset_readme.md"
     readme_path.write_text(markdown, encoding="utf-8")
     return {

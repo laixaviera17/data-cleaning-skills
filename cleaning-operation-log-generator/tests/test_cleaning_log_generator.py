@@ -111,7 +111,19 @@ class CleaningOperationLogGeneratorTest(unittest.TestCase):
 
         self.assertEqual(
             list(log_frame.columns),
-            ["timestamp", "step", "rule_name", "action", "affected_rows", "result", "message", "source_skill", "input_count", "output_count"],
+            [
+                "timestamp",
+                "step",
+                "rule_name",
+                "action",
+                "affected_rows",
+                "result",
+                "message",
+                "source_skill",
+                "input_count",
+                "output_count",
+                "run_id",
+            ],
         )
         self.assertEqual(len(log_frame), 0)
         self.assertEqual(summary["total_steps"], 0)

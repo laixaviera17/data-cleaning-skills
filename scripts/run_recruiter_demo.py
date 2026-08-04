@@ -5,50 +5,25 @@ from __future__ import annotations
 
 import json
 import shutil
-import sys
 from pathlib import Path
 from typing import Any
 
 import yaml
 
+from data_cleaning_skills import load_workflow_tools
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_INPUT = ROOT / "csv-json-data-cleaning-pipeline" / "examples" / "manual_demo" / "input_dirty.csv"
 PUBLIC_RULES = ROOT / "csv-json-data-cleaning-pipeline" / "examples" / "manual_demo" / "rules.yaml"
 DEFAULT_OUTPUT = ROOT / "demo" / "output"
-SCRIPT_DIRS = [
-    ROOT / "csv-json-data-cleaning-pipeline" / "scripts",
-    ROOT / "structured-issue-list-generator" / "scripts",
-    ROOT / "cleaning-operation-log-generator" / "scripts",
-    ROOT / "dataset-before-after-diff-comparator" / "scripts",
-    ROOT / "dataset-documentation-generator" / "scripts",
-    ROOT / "dataset-catalog-metadata-generator" / "scripts",
-    ROOT / "cleaned-dataset-delivery-packager" / "scripts",
-]
+DEMO_GENERATED_AT = "2026-08-03T00:00:00+00:00"
+DEMO_BATCH_ID = "recruiter-demo-v1"
+DEMO_RUN_ID = "recruiter-demo-run-v1"
 
 
 def _load_existing_tools() -> dict[str, Any]:
-    """Import the stable public functions already used by workspace QA."""
-    for script_dir in reversed(SCRIPT_DIRS):
-        sys.path.insert(0, str(script_dir))
-
-    from clean_dataset import process_dataset
-    from compare_datasets import compare_dataset_files
-    from generate_catalog_metadata import generate_catalog_metadata
-    from generate_cleaning_log import generate_cleaning_log
-    from generate_dataset_documentation import generate_dataset_documentation
-    from generate_issue_list import generate_issue_list
-    from package_cleaned_dataset import package_dataset
-
-    return {
-        "process_dataset": process_dataset,
-        "compare_dataset_files": compare_dataset_files,
-        "generate_catalog_metadata": generate_catalog_metadata,
-        "generate_cleaning_log": generate_cleaning_log,
-        "generate_dataset_documentation": generate_dataset_documentation,
-        "generate_issue_list": generate_issue_list,
-        "package_dataset": package_dataset,
-    }
+    """Load the package-level workflow interfaces used by workspace QA."""
+    return load_workflow_tools()
 
 
 def _prepare_output_directory(output_dir: Path) -> None:
@@ -73,6 +48,12 @@ def _write_runtime_rules(output_dir: Path) -> Path:
         "cleaning_log_name": "cleaning_log.csv",
         "dedup_report_name": "dedup_report.json",
     }
+    rules["lineage"] = {**rules.get("lineage", {}), "batch_id": DEMO_BATCH_ID}
+    rules["logging"] = {
+        **rules.get("logging", {}),
+        "run_id": DEMO_RUN_ID,
+        "timestamp": DEMO_GENERATED_AT,
+    }
     runtime_rules = output_dir / ".runtime_rules.yaml"
     runtime_rules.write_text(yaml.safe_dump(rules, allow_unicode=True, sort_keys=False), encoding="utf-8")
     return runtime_rules
@@ -89,6 +70,7 @@ def _write_metadata_config(path: Path) -> None:
                 "license": "MIT",
                 "authorization_type": "public-demo",
                 "tags": ["demo", "data-quality", "csv"],
+                "generated_at": DEMO_GENERATED_AT,
             },
             ensure_ascii=False,
             indent=2,
@@ -104,7 +86,7 @@ def run_demo(output_dir: Path = DEFAULT_OUTPUT) -> dict[str, Any]:
     tools = _load_existing_tools()
     runtime_rules = _write_runtime_rules(output_dir)
 
-    pipeline_report = tools["process_dataset"](PUBLIC_INPUT, runtime_rules)
+    tools["process_dataset"](PUBLIC_INPUT, runtime_rules)
     cleaned_data = output_dir / "cleaned_data.csv"
     issue_rows = output_dir / "issue_rows.csv"
     cleaning_log = output_dir / "cleaning_log.csv"
@@ -127,6 +109,7 @@ def run_demo(output_dir: Path = DEFAULT_OUTPUT) -> dict[str, Any]:
         docs_dir,
         dataset_name="recruiter_demo_news_dataset",
         reports=[cleaning_summary, issue_outputs["issue_rows"], diff_outputs["diff_summary"]],
+        generated_at=DEMO_GENERATED_AT,
     )
     metadata_config = output_dir / ".metadata_config.json"
     _write_metadata_config(metadata_config)
@@ -148,6 +131,7 @@ def run_demo(output_dir: Path = DEFAULT_OUTPUT) -> dict[str, Any]:
             metadata["metadata_path"],
         ],
         dataset_name="recruiter_demo_news_dataset",
+        generated_at=DEMO_GENERATED_AT,
     )
 
     delivery_manifest = output_dir / "delivery_manifest.json"
