@@ -28,6 +28,39 @@ REQUIRED_SECTIONS = [
     "amount_rules",
 ]
 
+ALLOWED_SECTIONS = {
+    "task",
+    "input",
+    "output",
+    "pipeline",
+    "field_mapping",
+    "dictionary",
+    "required_fields",
+    "unique_keys",
+    "null_handling",
+    "date_rules",
+    "phone_rules",
+    "amount_rules",
+    "id_card_rules",
+    "unit_rules",
+    "encoding_rules",
+    "enum_rules",
+    "anomaly_rules",
+    "custom_rules",
+    "standardization",
+    "lineage",
+    "logging",
+    "summary",
+}
+
+PIPELINE_SKILLS = {
+    "table-field-mapping-converter",
+    "missing-value-checker",
+    "format-standardizer",
+    "field-dictionary-value-validator",
+    "abnormal-value-detector",
+}
+
 ALLOWED_ACTIONS = {
     "mark",
     "drop",
@@ -80,6 +113,7 @@ def validate_rules(config: Any) -> dict[str, Any]:
     if not config:
         return {"valid": False, "errors": ["配置文件不能为空"]}
 
+    _validate_known_sections(config, errors)
     _validate_required_sections(config, errors)
     _validate_section_types(config, errors)
 
@@ -97,8 +131,81 @@ def validate_rules(config: Any) -> dict[str, Any]:
         _validate_amount_rules(config["amount_rules"], errors)
     if isinstance(config.get("enum_rules"), dict):
         _validate_enum_rules(config["enum_rules"], errors)
+    if isinstance(config.get("output"), dict):
+        _validate_output(config["output"], errors)
+    if "pipeline" in config:
+        _validate_pipeline(config["pipeline"], config, errors)
+    if "field_mapping" in config:
+        _validate_external_skill_config(config["field_mapping"], "field_mapping", "mapping_file", "mappings", errors)
+    if "dictionary" in config:
+        _validate_external_skill_config(config["dictionary"], "dictionary", "dictionary_file", "dictionary", errors)
 
     return {"valid": not errors, "errors": errors}
+
+
+def _validate_known_sections(config: dict[str, Any], errors: list[str]) -> None:
+    """Reject misspelled or unsupported top-level configuration sections."""
+    unknown = sorted(set(config) - ALLOWED_SECTIONS)
+    for section in unknown:
+        errors.append(f"不支持的顶层配置项: {section}")
+
+
+def _validate_external_skill_config(
+    value: Any,
+    section_name: str,
+    file_key: str,
+    inline_key: str,
+    errors: list[str],
+) -> None:
+    """Validate an optional mapping/dictionary atomic Skill configuration."""
+    if not isinstance(value, dict):
+        errors.append(f"{section_name} 必须为 dict 类型")
+        return
+    enabled = value.get("enabled", False)
+    if not isinstance(enabled, bool):
+        errors.append(f"{section_name}.enabled 必须为布尔值")
+        return
+    if not enabled:
+        return
+    file_value = value.get(file_key)
+    inline_value = value.get(inline_key)
+    has_file = isinstance(file_value, str) and bool(file_value.strip())
+    has_inline = isinstance(inline_value, list) and bool(inline_value)
+    if not has_file and not has_inline:
+        errors.append(f"{section_name} 启用时必须配置 {file_key} 或非空 {inline_key}")
+
+
+def _validate_output(output: dict[str, Any], errors: list[str]) -> None:
+    """Validate the configured main dataset output format."""
+    output_format = output.get("output_format", "csv")
+    if output_format not in {"csv", "json", "jsonl"}:
+        errors.append("output.output_format 仅支持 csv、json、jsonl")
+
+
+def _validate_pipeline(value: Any, config: dict[str, Any], errors: list[str]) -> None:
+    """Validate selected registered Skills and required configured steps."""
+    if not isinstance(value, dict):
+        errors.append("pipeline 必须为 dict 类型")
+        return
+    steps = value.get("steps")
+    if not isinstance(steps, list) or not steps or not all(isinstance(step, str) and step for step in steps):
+        errors.append("pipeline.steps 必须为非空 Skill 名称列表")
+        return
+    duplicates = sorted({step for step in steps if steps.count(step) > 1})
+    if duplicates:
+        errors.append(f"pipeline.steps 不允许重复 Skill: {', '.join(duplicates)}")
+    unknown = sorted(set(steps) - PIPELINE_SKILLS)
+    if unknown:
+        errors.append(f"pipeline.steps 包含未注册 Skill: {', '.join(unknown)}")
+
+    required_by_config = {
+        "field_mapping": "table-field-mapping-converter",
+        "dictionary": "field-dictionary-value-validator",
+    }
+    for section_name, skill_name in required_by_config.items():
+        section = config.get(section_name)
+        if isinstance(section, dict) and section.get("enabled", False) and skill_name not in steps:
+            errors.append(f"{section_name} 已启用，但 pipeline.steps 缺少 {skill_name}")
 
 
 def _validate_required_sections(config: dict[str, Any], errors: list[str]) -> None:
@@ -196,6 +303,8 @@ def _validate_null_handling(null_handling: dict[str, Any], errors: list[str]) ->
 
 def _validate_date_rules(date_rules: dict[str, Any], errors: list[str]) -> None:
     """Validate date format rules."""
+    if date_rules.get("enabled", True) is False:
+        return
     date_format = date_rules.get("date_format") or date_rules.get("target_format")
     if not date_format:
         errors.append("date_rules.date_format 或 date_rules.target_format 不能为空")
@@ -211,6 +320,8 @@ def _validate_phone_rules(phone_rules: dict[str, Any], errors: list[str]) -> Non
 
 def _validate_amount_rules(amount_rules: dict[str, Any], errors: list[str]) -> None:
     """Validate amount format rules."""
+    if amount_rules.get("enabled", True) is False:
+        return
     precision = amount_rules.get("amount_precision")
     if precision is None:
         precision = amount_rules.get("decimal_places")

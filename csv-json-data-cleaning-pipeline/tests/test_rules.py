@@ -70,6 +70,16 @@ class ValidateRulesTest(unittest.TestCase):
 
         self.assertTrue(result["valid"], result["errors"])
 
+    def test_disabled_format_sections_do_not_require_active_rule_fields(self):
+        config = dict(VALID_RULES)
+        config["date_rules"] = {"enabled": False, "fields": []}
+        config["phone_rules"] = {"enabled": False, "fields": []}
+        config["amount_rules"] = {"enabled": False, "fields": []}
+
+        result = validate_rules(config)
+
+        self.assertTrue(result["valid"], result["errors"])
+
     def test_similarity_dedup_config_is_supported(self):
         config = dict(VALID_RULES)
         config["unique_keys"] = {
@@ -104,6 +114,54 @@ class ValidateRulesTest(unittest.TestCase):
 
         self.assertFalse(result["valid"])
         self.assertIn("缺少必需配置项: required_fields", result["errors"])
+
+    def test_unknown_top_level_section_is_rejected(self):
+        config = dict(VALID_RULES)
+        config["field_mappng"] = {"enabled": True}
+
+        result = validate_rules(config)
+
+        self.assertFalse(result["valid"])
+        self.assertIn("不支持的顶层配置项: field_mappng", result["errors"])
+
+    def test_enabled_external_skill_requires_file_or_inline_rules(self):
+        config = dict(VALID_RULES)
+        config["field_mapping"] = {"enabled": True}
+        config["dictionary"] = {"enabled": True}
+
+        result = validate_rules(config)
+
+        self.assertFalse(result["valid"])
+        self.assertIn("field_mapping 启用时必须配置 mapping_file 或非空 mappings", result["errors"])
+        self.assertIn("dictionary 启用时必须配置 dictionary_file 或非空 dictionary", result["errors"])
+
+    def test_pipeline_rejects_unknown_and_duplicate_skills(self):
+        config = dict(VALID_RULES)
+        config["pipeline"] = {
+            "steps": ["missing-value-checker", "missing-value-checker", "not-registered"]
+        }
+
+        result = validate_rules(config)
+
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("不允许重复 Skill" in error for error in result["errors"]))
+        self.assertTrue(any("未注册 Skill" in error for error in result["errors"]))
+
+    def test_pipeline_requires_enabled_external_skill_step(self):
+        config = dict(VALID_RULES)
+        config["pipeline"] = {"steps": ["missing-value-checker"]}
+        config["field_mapping"] = {
+            "enabled": True,
+            "mappings": [{"source_field": "raw_id", "target_field": "id"}],
+        }
+
+        result = validate_rules(config)
+
+        self.assertFalse(result["valid"])
+        self.assertIn(
+            "field_mapping 已启用，但 pipeline.steps 缺少 table-field-mapping-converter",
+            result["errors"],
+        )
 
     def test_type_error(self):
         config = dict(VALID_RULES)

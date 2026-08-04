@@ -1,0 +1,4 @@
+field_name,raw_value,standard_value,allowed,remark
+status,有效,valid,true,Normalize Chinese status
+status,无效,invalid,true,Normalize Chinese status
+status,未知,,false,Disallowed placeholder
