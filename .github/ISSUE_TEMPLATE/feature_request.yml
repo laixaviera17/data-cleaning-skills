@@ -1,0 +1,32 @@
+name: Feature request
+description: Propose a focused Skill, rule, orchestration, or delivery improvement.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and user
+      description: Describe the user, workflow, and current limitation before proposing a solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Include input, output, error behavior, and the appropriate architecture layer.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and compatibility risk
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance evidence
+      description: List tests, metrics, or artifact contracts that would prove completion.
+    validations:
+      required: true
