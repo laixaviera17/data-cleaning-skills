@@ -14,6 +14,44 @@
 4. 无法确认的数据应使用 `mark` 或 `manual_review`，不要强行修复。
 5. 删除数据的规则应谨慎配置，并保留问题记录。
 
+未知顶层配置会直接导致规则校验失败，避免拼写错误被静默忽略。外部文件路径以规则 YAML 所在目录为基准。
+
+## Pipeline 步骤选择
+
+`pipeline.steps` 使用注册表中的 Skill 名称。编排器会按依赖图排序，因此 YAML 中的书写顺序不会改变数据依赖；未知或重复名称会导致配置失败。
+
+```yaml
+pipeline:
+  steps:
+    - table-field-mapping-converter
+    - missing-value-checker
+    - format-standardizer
+    - field-dictionary-value-validator
+    - abnormal-value-detector
+```
+
+如果启用了 `field_mapping` 或 `dictionary`，对应 Skill 必须出现在步骤列表中。未选择的其他步骤会被明确记录为 `skipped`。
+
+## 字段映射与字典校验
+
+字段映射在去重和内容规则之前执行，适合先将多来源字段统一成标准字段名：
+
+```yaml
+field_mapping:
+  enabled: true
+  mapping_file: "field_mapping.csv"
+```
+
+字段字典在格式标准化之后、异常检测之前执行，用于将原始业务值转换为标准值并报告未知或禁用值：
+
+```yaml
+dictionary:
+  enabled: true
+  dictionary_file: "dictionary.csv"
+```
+
+也可分别使用 `mappings` 和 `dictionary` 提供非空内联规则。启用配置却未提供文件或内联规则时，规则校验会失败。CSV 字段模板见 `assets/field_mapping_template.csv` 和 `assets/dictionary_template.csv`。
+
 ## 3. required_fields
 
 ### 3.1 用途
