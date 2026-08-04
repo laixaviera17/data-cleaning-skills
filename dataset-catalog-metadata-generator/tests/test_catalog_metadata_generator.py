@@ -39,6 +39,23 @@ class CatalogMetadataGeneratorTest(unittest.TestCase):
             self.assertEqual(metadata["catalog_standard"], "NDI-TR-2025-06")
             self.assertEqual(metadata["standard_field_mapping"]["dataset_title"], "dataset_name")
             self.assertTrue(metadata["required_field_status"]["valid"])
+            self.assertEqual(metadata["files"][0]["path"], "cleaned_data.csv")
+            self.assertEqual(metadata["artifacts"][0]["path"], "quality_report.json")
+
+    def test_dataset_id_is_stable_across_output_directories(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            first = generate_catalog_metadata(
+                ROOT / "examples" / "cleaned_data.csv",
+                Path(tmpdir) / "first",
+                config_path=ROOT / "examples" / "metadata_config.json",
+            )
+            second = generate_catalog_metadata(
+                ROOT / "examples" / "cleaned_data.csv",
+                Path(tmpdir) / "second",
+                config_path=ROOT / "examples" / "metadata_config.json",
+            )
+
+        self.assertEqual(first["metadata"]["dataset_id"], second["metadata"]["dataset_id"])
 
     def test_default_metadata_reports_missing_required_descriptive_fields(self):
         with tempfile.TemporaryDirectory() as tmpdir:

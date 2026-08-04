@@ -21,13 +21,23 @@ output:
   output_format: "csv"
   keep_issue_rows: true
 
+# Atomic Skills are validated against the registry and resolved in dependency order.
+pipeline:
+  steps:
+    - "table-field-mapping-converter"
+    - "missing-value-checker"
+    - "format-standardizer"
+    - "field-dictionary-value-validator"
+    - "abnormal-value-detector"
+
 field_mapping:
   enabled: false
-  mapping_file: "assets/field_mapping_template.csv"
+  # Relative paths are resolved from this YAML file's directory.
+  mapping_file: "field_mapping_template.csv"
 
 dictionary:
   enabled: false
-  dictionary_file: "assets/dictionary_template.csv"
+  dictionary_file: "dictionary_template.csv"
 
 required_fields:
   - field: "id"

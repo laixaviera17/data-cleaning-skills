@@ -3,7 +3,7 @@
   "$id": "cleaning_log.schema.json",
   "title": "Cleaning Operation Log CSV",
   "type": "object",
-  "required": ["columns"],
+  "required": ["columns", "rows"],
   "properties": {
     "columns": {
       "type": "array",
@@ -18,17 +18,26 @@
       ],
       "minItems": 7
     },
-    "row_contract": {
+    "rows": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/row"}
+    }
+  },
+  "$defs": {
+    "row": {
       "type": "object",
+      "required": ["timestamp", "step", "rule_name", "action", "affected_rows", "result", "message", "run_id"],
       "properties": {
-        "timestamp": {"type": "string"},
-        "step": {"type": "string"},
-        "rule_name": {"type": "string"},
-        "action": {"type": "string"},
+        "timestamp": {"type": "string", "minLength": 1},
+        "step": {"type": "string", "minLength": 1},
+        "rule_name": {"type": "string", "minLength": 1},
+        "action": {"type": "string", "minLength": 1},
         "affected_rows": {"type": "integer", "minimum": 0},
-        "result": {"type": "string"},
-        "message": {"type": "string"}
-      }
+        "result": {"type": "string", "enum": ["success", "warning", "failed", "skipped"]},
+        "message": {"type": "string"},
+        "run_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
     }
   },
   "additionalProperties": false

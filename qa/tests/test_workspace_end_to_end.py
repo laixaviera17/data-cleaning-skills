@@ -1,33 +1,22 @@
 from __future__ import annotations
 
 import json
-import sys
 import tempfile
 import unittest
 import zipfile
 from pathlib import Path
 
+from data_cleaning_skills import load_workflow_tools, validate_csv_contract, validate_json_contract
 
 WORKSPACE = Path(__file__).resolve().parents[2]
-SCRIPT_DIRS = [
-    WORKSPACE / "csv-json-data-cleaning-pipeline" / "scripts",
-    WORKSPACE / "structured-issue-list-generator" / "scripts",
-    WORKSPACE / "cleaning-operation-log-generator" / "scripts",
-    WORKSPACE / "dataset-before-after-diff-comparator" / "scripts",
-    WORKSPACE / "dataset-documentation-generator" / "scripts",
-    WORKSPACE / "dataset-catalog-metadata-generator" / "scripts",
-    WORKSPACE / "cleaned-dataset-delivery-packager" / "scripts",
-]
-for script_dir in reversed(SCRIPT_DIRS):
-    sys.path.insert(0, str(script_dir))
-
-from clean_dataset import process_dataset  # noqa: E402
-from compare_datasets import compare_dataset_files  # noqa: E402
-from generate_catalog_metadata import generate_catalog_metadata  # noqa: E402
-from generate_cleaning_log import generate_cleaning_log  # noqa: E402
-from generate_dataset_documentation import generate_dataset_documentation  # noqa: E402
-from generate_issue_list import generate_issue_list  # noqa: E402
-from package_cleaned_dataset import package_dataset  # noqa: E402
+TOOLS = load_workflow_tools()
+process_dataset = TOOLS["process_dataset"]
+compare_dataset_files = TOOLS["compare_dataset_files"]
+generate_catalog_metadata = TOOLS["generate_catalog_metadata"]
+generate_cleaning_log = TOOLS["generate_cleaning_log"]
+generate_dataset_documentation = TOOLS["generate_dataset_documentation"]
+generate_issue_list = TOOLS["generate_issue_list"]
+package_dataset = TOOLS["package_dataset"]
 
 
 class WorkspaceEndToEndTest(unittest.TestCase):
@@ -166,6 +155,24 @@ enum_rules:
 
             manifest = package_result["manifest"]
             archive_path = Path(package_result["archive_path"])
+            schema_dir = WORKSPACE / "qa" / "schemas"
+
+            validate_json_contract(
+                package_result["manifest_path"],
+                schema_dir / "delivery_manifest.schema.json",
+            )
+            validate_json_contract(
+                metadata_result["metadata_path"],
+                schema_dir / "catalog_metadata.schema.json",
+            )
+            validate_csv_contract(
+                issue_outputs["issue_rows"],
+                schema_dir / "issue_rows.schema.json",
+            )
+            validate_csv_contract(
+                log_outputs["cleaning_log"],
+                schema_dir / "cleaning_log.schema.json",
+            )
 
             self.assertEqual(pipeline_report["input_rows"], 2)
             self.assertTrue(cleaned_data.exists())

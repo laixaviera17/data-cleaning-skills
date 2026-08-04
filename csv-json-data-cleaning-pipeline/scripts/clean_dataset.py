@@ -8,28 +8,29 @@ cleaning logs.
 
 from __future__ import annotations
 
-from difflib import SequenceMatcher
-import importlib.util
 import hashlib
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
-
-from pipeline_file_utils import ensure_directory, load_csv, load_json, load_jsonl, save_csv
+from pipeline_file_utils import ensure_directory, load_csv, load_json, load_jsonl, save_csv, save_json, save_jsonl
 from validate_rules import load_yaml_file, validate_rules
 
+from data_cleaning_skills import (
+    SkillConfigurationError,
+    build_execution_plan,
+    get_default_registry,
+    new_run_id,
+    validate_pipeline_rules,
+)
 
 SUPPORTED_SUFFIXES = {".csv", ".json", ".jsonl"}
-OUTPUTS_DIR = Path(__file__).resolve().parents[2]
-ATOMIC_SKILL_SCRIPTS = {
-    "missing-value-checker": OUTPUTS_DIR / "missing-value-checker" / "scripts" / "check_missing_values.py",
-    "format-standardizer": OUTPUTS_DIR / "format-standardizer" / "scripts" / "standardize_format.py",
-    "abnormal-value-detector": OUTPUTS_DIR / "abnormal-value-detector" / "scripts" / "detect_abnormal_values.py",
-}
+LINEAGE_FIELDS = {"_source_file", "_source_row", "_batch_id", "_rule_version", "_record_hash"}
+SKILL_REGISTRY = get_default_registry()
 
 
 def load_dataset(input_path: str | Path) -> pd.DataFrame:
@@ -75,10 +76,21 @@ def load_rules(rules_path: str | Path) -> dict[str, Any]:
         raise ValueError("; ".join(errors))
     if not isinstance(rules, dict):
         raise ValueError("规则文件根节点必须是字典对象")
-    validation_result = validate_rules(rules)
-    if not validation_result["valid"]:
-        raise ValueError("规则校验失败: " + "; ".join(validation_result["errors"]))
+    validate_pipeline_rules(rules, validator=validate_rules)
+    _resolve_rule_resource_paths(rules, Path(rules_path).resolve().parent)
     return rules
+
+
+def _resolve_rule_resource_paths(rules: dict[str, Any], config_dir: Path) -> None:
+    """Resolve mapping and dictionary files relative to the rule file."""
+    for section_name, file_key in (("field_mapping", "mapping_file"), ("dictionary", "dictionary_file")):
+        section = rules.get(section_name)
+        if not isinstance(section, dict) or not isinstance(section.get(file_key), str):
+            continue
+        path = Path(section[file_key]).expanduser()
+        if not path.is_absolute():
+            path = config_dir / path
+        section[file_key] = str(path.resolve())
 
 
 def check_required_fields(dataframe: pd.DataFrame, rules: dict[str, Any]) -> list[str]:
@@ -121,11 +133,12 @@ def deduplicate_dataframe(dataframe: pd.DataFrame, rules: dict[str, Any]) -> pd.
 def process_dataframe(dataframe: pd.DataFrame, rules: dict[str, Any]) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Run the orchestration pipeline on an in-memory DataFrame.
 
-    The pipeline owns loading, deduplication, output aggregation, and reporting.
-    Missing-value repair, format standardization, and abnormal-value detection
-    are delegated to the three atomic Skills through their stable
-    process_dataframe(dataframe, rules) interfaces.
+    The pipeline owns deduplication, output aggregation, and reporting. Field
+    mapping, missing-value repair, format standardization, dictionary
+    validation, and abnormal-value detection are delegated to five registered
+    atomic Skills through one stable interface.
     """
+    validate_pipeline_rules(rules, validator=validate_rules)
     processed, result, _, _, _ = _process_dataframe_detailed(dataframe, rules, input_path=None)
     return processed, result
 
@@ -143,7 +156,9 @@ def process_dataset(input_path: str | Path, rules_path: str | Path) -> dict[str,
     """
     dataframe = load_dataset(input_path)
     rules = load_rules(rules_path)
-    processed, result, issue_rows, cleaning_log, dedup_report = _process_dataframe_detailed(dataframe, rules, input_path=input_path)
+    processed, result, issue_rows, cleaning_log, dedup_report = _process_dataframe_detailed(
+        dataframe, rules, input_path=input_path
+    )
     if isinstance(rules.get("output"), dict) and rules["output"].get("output_dir"):
         write_outputs(processed, result, issue_rows, cleaning_log, dedup_report, rules)
     return result
@@ -172,18 +187,31 @@ def write_outputs(
     output_config = rules.get("output", {})
     output_dir = ensure_directory(output_config.get("output_dir", "outputs/cleaning_result"))
 
-    cleaned_data_path = output_dir / output_config.get("cleaned_data_name", "cleaned_data.csv")
+    output_format = str(output_config.get("output_format", "csv")).strip().lower()
+    default_cleaned_name = f"cleaned_data.{output_format}"
+    cleaned_data_path = output_dir / output_config.get("cleaned_data_name", default_cleaned_name)
     issue_rows_path = output_dir / output_config.get("issue_rows_name", "issue_rows.csv")
     summary_path = output_dir / output_config.get("cleaning_summary_name", "cleaning_summary.json")
     log_path = output_dir / output_config.get("cleaning_log_name", "cleaning_log.csv")
     dedup_path = output_dir / output_config.get("dedup_report_name", "dedup_report.json")
 
-    save_csv(cleaned_data, cleaned_data_path)
+    if output_format == "csv":
+        save_csv(cleaned_data, cleaned_data_path)
+    elif output_format == "json":
+        save_json(cleaned_data, cleaned_data_path)
+    elif output_format == "jsonl":
+        save_jsonl(cleaned_data, cleaned_data_path)
+    else:
+        raise ValueError(f"不支持的输出格式: {output_format}")
     save_csv(_issue_rows_dataframe(issue_rows), issue_rows_path)
-    save_csv(pd.DataFrame(cleaning_log, columns=["timestamp", "rule_name", "action", "affected_rows", "result"]), log_path)
+    save_csv(
+        pd.DataFrame(cleaning_log, columns=["timestamp", "rule_name", "action", "affected_rows", "result", "run_id"]),
+        log_path,
+    )
     dedup_path.write_text(json.dumps(dedup_report, ensure_ascii=False, indent=2), encoding="utf-8")
 
     summary = {
+        "run_id": result["run_id"],
         "input_rows": result["input_rows"],
         "output_rows": len(cleaned_data),
         "removed_rows": result["removed_rows"],
@@ -218,21 +246,61 @@ def _process_dataframe_detailed(
     input_rows = len(dataframe)
     issue_rows: list[dict[str, Any]] = []
     cleaning_log: list[dict[str, Any]] = []
+    pipeline_config = rules.get("pipeline")
+    selected_steps = pipeline_config.get("steps") if isinstance(pipeline_config, dict) else None
+    execution_plan = build_execution_plan(selected_steps, SKILL_REGISTRY.names())
+    logging_config = rules.get("logging")
+    configured_run_id = logging_config.get("run_id") if isinstance(logging_config, dict) else None
+    run_id = new_run_id(configured_run_id)
 
     cleaning_log.append(_log_record("load_input", "check", input_rows, "success"))
 
-    deduplicated, duplicate_issues, dedup_report = _deduplicate_with_issues(dataframe, rules)
+    if execution_plan.includes("table-field-mapping-converter"):
+        mapped, mapping_report = _execute_optional_external_skill(
+            "table-field-mapping-converter",
+            dataframe,
+            rules.get("field_mapping"),
+            file_key="mapping_file",
+            inline_key="mappings",
+        )
+    else:
+        mapped, mapping_report = dataframe.copy(), _skipped_report()
+    mapping_issues = _normalize_atomic_issues(
+        mapping_report.get("issues", []),
+        "table-field-mapping-converter",
+        context_dataframe=dataframe,
+    )
+    issue_rows.extend(mapping_issues)
+    cleaning_log.append(
+        _log_record(
+            "table-field-mapping-converter",
+            "map",
+            int(mapping_report.get("mapped_fields", 0)),
+            "skipped" if mapping_report.get("skipped") else "warning" if mapping_issues else "success",
+        )
+    )
+
+    deduplicated, duplicate_issues, dedup_report = _deduplicate_with_issues(mapped, rules)
     issue_rows.extend(duplicate_issues)
     duplicate_exact_rows = int(dedup_report.get("exact_duplicate_rows", 0))
     duplicate_similarity_rows = int(dedup_report.get("similarity_duplicate_rows", 0))
     duplicate_rows = duplicate_exact_rows + duplicate_similarity_rows
     cleaning_log.append(_log_record("unique_keys", "drop", duplicate_rows, "success"))
 
-    missing_module = _load_atomic_module("missing-value-checker")
-    missing_processed, missing_report = missing_module.process_dataframe(
-        deduplicated,
-        _build_missing_value_rules(rules),
-    )
+    if execution_plan.includes("missing-value-checker"):
+        missing_result = SKILL_REGISTRY.get("missing-value-checker").execute(
+            deduplicated,
+            _build_missing_value_rules(rules),
+        )
+        missing_processed, missing_report = missing_result.dataframe, missing_result.report
+    else:
+        missing_processed = deduplicated.copy()
+        missing_report = _skipped_report(
+            missing_fields=[],
+            missing_cells=0,
+            repaired_cells=0,
+            dropped_rows=0,
+        )
     issue_rows.extend(_missing_report_issues(missing_report))
     missing_cell_issues = _missing_cell_issues(deduplicated, missing_processed, rules)
     issue_rows.extend(missing_cell_issues)
@@ -246,17 +314,23 @@ def _process_dataframe_detailed(
             "missing-value-checker",
             "repair",
             processed_null_rows,
-            "warning" if missing_fields else "success",
+            "skipped" if missing_report.get("skipped") else "warning" if missing_fields else "success",
         )
     )
-    cleaning_log.append(_log_record("required_fields", "check", len(missing_fields), "warning" if missing_fields else "success"))
+    cleaning_log.append(
+        _log_record("required_fields", "check", len(missing_fields), "warning" if missing_fields else "success")
+    )
     cleaning_log.append(_log_record("null_handling", "process", processed_null_rows, "success"))
 
-    format_module = _load_atomic_module("format-standardizer")
-    standardized, format_report = format_module.process_dataframe(
-        missing_processed,
-        _build_format_rules(rules),
-    )
+    if execution_plan.includes("format-standardizer"):
+        format_result = SKILL_REGISTRY.get("format-standardizer").execute(
+            missing_processed,
+            _build_format_rules(rules),
+        )
+        standardized, format_report = format_result.dataframe, format_result.report
+    else:
+        standardized = missing_processed.copy()
+        format_report = _skipped_report(abnormal_records=[], standardized_cells=0, failed_cells=0)
     format_issues = _normalize_atomic_issues(
         format_report.get("abnormal_records", []),
         "format-standardizer",
@@ -266,29 +340,75 @@ def _process_dataframe_detailed(
     quarantine_indices.update(_unrepaired_format_indices(format_issues, rules))
     standardized_cells = int(format_report.get("standardized_cells", 0))
     format_failed_cells = int(format_report.get("failed_cells", 0))
-    cleaning_log.append(_log_record("format-standardizer", "standardize", standardized_cells, "success"))
-
-    abnormal_module = _load_atomic_module("abnormal-value-detector")
-    _, abnormal_report = abnormal_module.process_dataframe(
-        standardized,
-        _build_abnormal_rules(rules),
+    cleaning_log.append(
+        _log_record(
+            "format-standardizer",
+            "standardize",
+            standardized_cells,
+            "skipped" if format_report.get("skipped") else "success",
+        )
     )
+
+    if execution_plan.includes("field-dictionary-value-validator"):
+        dictionary_processed, dictionary_report = _execute_optional_external_skill(
+            "field-dictionary-value-validator",
+            standardized,
+            rules.get("dictionary"),
+            file_key="dictionary_file",
+            inline_key="dictionary",
+        )
+    else:
+        dictionary_processed, dictionary_report = standardized.copy(), _skipped_report()
+    dictionary_issues = _normalize_atomic_issues(
+        dictionary_report.get("issues", []),
+        "field-dictionary-value-validator",
+        context_dataframe=standardized,
+    )
+    issue_rows.extend(dictionary_issues)
+    dictionary_changed_values = int(dictionary_report.get("changed_values", 0))
+    cleaning_log.append(
+        _log_record(
+            "field-dictionary-value-validator",
+            "validate",
+            dictionary_changed_values + len(dictionary_issues),
+            "skipped" if dictionary_report.get("skipped") else "warning" if dictionary_issues else "success",
+        )
+    )
+
+    if execution_plan.includes("abnormal-value-detector"):
+        abnormal_result = SKILL_REGISTRY.get("abnormal-value-detector").execute(
+            dictionary_processed,
+            _build_abnormal_rules(rules),
+        )
+        abnormal_report = abnormal_result.report
+    else:
+        abnormal_report = _skipped_report(abnormal_records=[], abnormal_count=0)
     abnormal_issues = _normalize_atomic_issues(
         abnormal_report.get("abnormal_records", []),
         "abnormal-value-detector",
-        context_dataframe=standardized,
+        context_dataframe=dictionary_processed,
     )
     issue_rows.extend(abnormal_issues)
     quarantine_indices.update(_issue_indices(abnormal_issues))
     abnormal_count = int(abnormal_report.get("abnormal_count", 0))
-    cleaning_log.append(_log_record("abnormal-value-detector", "detect", abnormal_count, "success"))
+    cleaning_log.append(
+        _log_record(
+            "abnormal-value-detector",
+            "detect",
+            abnormal_count,
+            "skipped" if abnormal_report.get("skipped") else "success",
+        )
+    )
 
-    cleaned = standardized.drop(index=[index for index in quarantine_indices if index in standardized.index]).copy()
+    cleaned = dictionary_processed.drop(
+        index=[index for index in quarantine_indices if index in dictionary_processed.index]
+    ).copy()
     cleaned = _attach_lineage_fields(cleaned, rules, input_path=input_path)
-    quarantined_rows = len(standardized) - len(cleaned)
+    quarantined_rows = len(dictionary_processed) - len(cleaned)
     cleaning_log.append(_log_record("quarantine_unrepaired_rows", "drop", quarantined_rows, "success"))
 
     result = {
+        "run_id": run_id,
         "input_rows": input_rows,
         "after_deduplicate_rows": len(deduplicated),
         "duplicate_exact_rows": duplicate_exact_rows,
@@ -297,48 +417,60 @@ def _process_dataframe_detailed(
         "quarantined_rows": quarantined_rows,
         "removed_rows": duplicate_rows + quarantined_rows,
         "missing_fields": missing_fields,
-        "repaired_rows": null_repaired_cells + standardized_cells,
+        "repaired_rows": null_repaired_cells + standardized_cells + dictionary_changed_values,
         "processed_null_rows": processed_null_rows,
         "null_dropped_rows": null_dropped_rows,
         "null_repaired_rows": null_repaired_cells,
         "standardized_rows": standardized_cells,
         "abnormal_rows": format_failed_cells + abnormal_count,
+        "execution_plan": list(execution_plan.steps),
         "atomic_reports": {
+            "table-field-mapping-converter": mapping_report,
             "missing-value-checker": missing_report,
             "format-standardizer": format_report,
+            "field-dictionary-value-validator": dictionary_report,
             "abnormal-value-detector": abnormal_report,
         },
     }
     cleaning_log.append(_log_record("export_outputs", "export", len(issue_rows), "success"))
+    configured_timestamp = logging_config.get("timestamp") if isinstance(logging_config, dict) else None
+    for record in cleaning_log:
+        record["run_id"] = run_id
+        if isinstance(configured_timestamp, str) and configured_timestamp.strip():
+            record["timestamp"] = configured_timestamp.strip()
     return cleaned, result, issue_rows, cleaning_log, dedup_report
 
 
-def _load_atomic_module(skill_name: str) -> Any:
-    """Load an atomic Skill script by path without requiring package imports."""
-    script_path = ATOMIC_SKILL_SCRIPTS[skill_name]
-    if not script_path.is_file():
-        raise FileNotFoundError(f"原子 Skill 脚本不存在: {script_path}")
+def _skipped_report(**values: Any) -> dict[str, Any]:
+    """Build a uniform no-op report for a Skill excluded from the plan."""
+    return {"enabled": False, "skipped": True, "issues": [], "changes": [], **values}
 
-    module_name = skill_name.replace("-", "_")
-    spec = importlib.util.spec_from_file_location(module_name, script_path)
-    if spec is None or spec.loader is None:
-        raise ImportError(f"无法加载原子 Skill: {skill_name}")
 
-    module = importlib.util.module_from_spec(spec)
-    previous_file_utils = sys.modules.pop("file_utils", None)
-    sys.path.insert(0, str(script_path.parent))
-    try:
-        spec.loader.exec_module(module)
-    finally:
-        sys.path.pop(0)
-        if previous_file_utils is not None:
-            sys.modules["file_utils"] = previous_file_utils
-        else:
-            sys.modules.pop("file_utils", None)
+def _execute_optional_external_skill(
+    skill_name: str,
+    dataframe: pd.DataFrame,
+    config: Any,
+    *,
+    file_key: str,
+    inline_key: str,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Execute an optional file/inline configured atomic Skill."""
+    if not isinstance(config, dict) or not config.get("enabled", False):
+        return dataframe.copy(), {"enabled": False, "issues": [], "changes": []}
 
-    if not hasattr(module, "process_dataframe"):
-        raise AttributeError(f"{skill_name} 缺少 process_dataframe(dataframe, rules) 接口")
-    return module
+    if isinstance(config.get(inline_key), list) and config[inline_key]:
+        atomic_rules: Any = config[inline_key]
+    elif isinstance(config.get(file_key), str) and config[file_key].strip():
+        path = Path(config[file_key]).expanduser()
+        if not path.is_file():
+            raise FileNotFoundError(f"{skill_name} 配置文件不存在: {path}")
+        atomic_rules = pd.read_csv(path, keep_default_na=False)
+    else:
+        raise SkillConfigurationError(f"{skill_name} 缺少 {file_key} 或 {inline_key}")
+
+    result = SKILL_REGISTRY.get(skill_name).execute(dataframe, atomic_rules)
+    report = {"enabled": True, **result.report}
+    return result.dataframe, report
 
 
 def _build_missing_value_rules(rules: dict[str, Any]) -> dict[str, Any]:
@@ -358,7 +490,10 @@ def _build_missing_value_rules(rules: dict[str, Any]) -> dict[str, Any]:
                 "value": strategy.get("fill_value", strategy.get("custom_value", strategy.get("value", ""))),
             }
         elif action == "fill_default":
-            field_rules[field] = {"action": "fill_default", "value": strategy.get("default_value", strategy.get("value", "unknown"))}
+            field_rules[field] = {
+                "action": "fill_default",
+                "value": strategy.get("default_value", strategy.get("value", "unknown")),
+            }
         elif action in {"drop", "mean", "median", "mode", "ffill", "bfill", "keep_null"}:
             field_rules[field] = {"action": action}
         else:
@@ -395,7 +530,14 @@ def _convert_format_section(section: Any, field_type: str) -> dict[str, Any]:
             fields.append(item)
         elif isinstance(item, dict) and isinstance(item.get("field"), str):
             field_config: dict[str, Any] = {"field": item["field"]}
-            for key in ("country_code", "decimal_places", "amount_precision", "allow_negative", "strict", "invalid_action"):
+            for key in (
+                "country_code",
+                "decimal_places",
+                "amount_precision",
+                "allow_negative",
+                "strict",
+                "invalid_action",
+            ):
                 if key in item:
                     field_config[key] = item[key]
             fields.append(field_config)
@@ -552,7 +694,11 @@ def _missing_cell_issues(
                 continue
             configured_action = strategy_actions.get(field, "mark")
             dropped = index not in repaired_dataframe.index
-            repaired_value = repaired_dataframe.at[index, field] if field in repaired_dataframe.columns and index in repaired_dataframe.index else value
+            repaired_value = (
+                repaired_dataframe.at[index, field]
+                if field in repaired_dataframe.columns and index in repaired_dataframe.index
+                else value
+            )
             repaired = (not dropped) and (not _is_null_like(repaired_value, null_values))
             if dropped:
                 reason = "缺失值行已按规则删除"
@@ -564,7 +710,11 @@ def _missing_cell_issues(
                 process_result = "repaired"
             else:
                 reason = "缺失值保留并标记"
-                action = configured_action if configured_action in {"mark", "ffill", "bfill", "mean", "median", "mode"} else "mark"
+                action = (
+                    configured_action
+                    if configured_action in {"mark", "ffill", "bfill", "mean", "median", "mode"}
+                    else "mark"
+                )
                 process_result = "marked"
             issues.append(
                 _issue_record(
@@ -648,8 +798,11 @@ def _normalize_atomic_issues(
         normalized.append(
             _issue_record(
                 row=row_value,
-                field=record.get("field", ""),
-                value=record.get("value", record.get("original_value", "")),
+                field=record.get(
+                    "field",
+                    record.get("field_name", record.get("source_field", record.get("target_field", ""))),
+                ),
+                value=record.get("value", record.get("original_value", record.get("raw_value", ""))),
                 issue_type=record.get("issue_type", reason),
                 reason=reason,
                 source_skill=record.get("source_skill", default_source_skill),
@@ -963,7 +1116,7 @@ def _issue_rows_dataframe(issue_rows: list[dict[str, Any]]) -> pd.DataFrame:
 def _log_record(rule_name: str, action: str, affected_rows: int, result: str) -> dict[str, Any]:
     """Create a standard cleaning log record."""
     return {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "rule_name": rule_name,
         "action": action,
         "affected_rows": affected_rows,
@@ -981,14 +1134,21 @@ def _joined_values(row: pd.Series, fields: list[str]) -> str:
     return "|".join(str(row.get(field, "")) for field in fields)
 
 
-def _attach_lineage_fields(dataframe: pd.DataFrame, rules: dict[str, Any], input_path: str | Path | None) -> pd.DataFrame:
+def _attach_lineage_fields(
+    dataframe: pd.DataFrame, rules: dict[str, Any], input_path: str | Path | None
+) -> pd.DataFrame:
     """Attach stable lineage fields to cleaned data."""
     if dataframe.empty:
         dataframe = dataframe.copy()
     lineage_config = rules.get("lineage", {}) if isinstance(rules.get("lineage"), dict) else {}
-    source_file = str(input_path) if input_path else str(lineage_config.get("source_file", "in_memory"))
-    batch_id = str(lineage_config.get("batch_id", datetime.now().strftime("%Y%m%d%H%M%S")))
+    source_file = Path(input_path).name if input_path else str(lineage_config.get("source_file", "in_memory"))
     rule_version = str(lineage_config.get("rule_version", "v1"))
+    configured_batch_id = lineage_config.get("batch_id")
+    batch_id = (
+        str(configured_batch_id)
+        if configured_batch_id not in (None, "")
+        else _stable_batch_id(dataframe, source_file, rule_version)
+    )
 
     with_lineage = dataframe.copy()
     with_lineage["_source_file"] = source_file
@@ -1003,11 +1163,24 @@ def _record_hash(row: pd.Series) -> str:
     """Generate a stable hash for one cleaned record."""
     payload: dict[str, Any] = {}
     for key, value in row.to_dict().items():
-        if key in {"_record_hash"}:
+        if key in LINEAGE_FIELDS:
             continue
         payload[str(key)] = None if pd.isna(value) else value
     serialized = json.dumps(payload, sort_keys=True, ensure_ascii=False, default=str)
     return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+
+
+def _stable_batch_id(dataframe: pd.DataFrame, source_file: str, rule_version: str) -> str:
+    """Derive a stable batch identity from ordered business records and rule version."""
+    records = [_json_safe_record(record) for record in dataframe.to_dict(orient="records")]
+    payload = json.dumps(
+        {"source_file": source_file, "rule_version": rule_version, "records": records},
+        sort_keys=True,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        default=str,
+    )
+    return "batch-" + hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
 
 def main(argv: list[str]) -> int:

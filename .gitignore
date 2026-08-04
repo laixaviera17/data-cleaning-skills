@@ -5,6 +5,7 @@ __pycache__/
 .coverage
 htmlcov/
 .venv/
+.*-venv/
 venv/
 qa/reports/
 *.zip
@@ -15,3 +16,4 @@ demo/output/
 tmp/
 dist/
 build/
+*.egg-info/

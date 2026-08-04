@@ -172,6 +172,7 @@ def run_skill_qa(skill: Skill, python_exe: str, reports_dir: Path, timeout: int)
         completed = subprocess.run(
             command,
             cwd=skill.path,
+            env=pythonpath_env(skill.path.parent),
             text=True,
             capture_output=True,
             timeout=timeout,
@@ -248,6 +249,7 @@ def run_workspace_tests(workspace: Path, python_exe: str, reports_dir: Path, tim
         completed = subprocess.run(
             command,
             cwd=workspace,
+            env=pythonpath_env(workspace),
             text=True,
             capture_output=True,
             timeout=timeout,
@@ -283,6 +285,15 @@ def run_workspace_tests(workspace: Path, python_exe: str, reports_dir: Path, tim
         log_path=str(log_path),
         issues=issues,
     )
+
+
+def pythonpath_env(workspace: Path) -> dict[str, str]:
+    """Return a subprocess environment that exposes the root ``src`` package."""
+    env = os.environ.copy()
+    src_path = str((workspace / "src").resolve())
+    current = env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = src_path if not current else os.pathsep.join((src_path, current))
+    return env
 
 
 def parse_junit(path: Path) -> dict[str, int]:

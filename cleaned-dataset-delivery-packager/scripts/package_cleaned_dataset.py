@@ -8,9 +8,9 @@ import csv
 import hashlib
 import json
 import shutil
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
-
 
 PACKAGE_DIRS = ("data", "reports", "logs", "metadata", "docs", "extras")
 
@@ -56,12 +56,13 @@ def copy_unique(source: Path, target_dir: Path) -> Path:
 
 
 def file_record(path: Path, role: str, package_root: Path, source_path: Path | None = None) -> dict:
+    """Build a portable manifest record without embedding host filesystem paths."""
     return {
         "path": path.relative_to(package_root).as_posix(),
         "role": role,
         "size_bytes": path.stat().st_size,
         "sha256": sha256_file(path),
-        "source_path": str(source_path) if source_path else "",
+        "source_path": source_path.name if source_path else "",
     }
 
 
@@ -70,6 +71,7 @@ def package_dataset(
     output_dir: str | Path,
     artifacts: list[str | Path] | None = None,
     dataset_name: str | None = None,
+    generated_at: str | None = None,
 ) -> dict:
     cleaned_data = Path(cleaned_data_path).expanduser().resolve()
     if not cleaned_data.exists():
@@ -101,7 +103,7 @@ def package_dataset(
 
     manifest = {
         "dataset_name": dataset_name or cleaned_data.stem,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "package_layout": list(PACKAGE_DIRS),
         "file_count": len(files),
         "files": files,
@@ -117,8 +119,12 @@ def package_dataset(
         for record in files:
             writer.writerow({key: record[key] for key in ("path", "role", "size_bytes", "sha256")})
 
-    archive_base = output / "delivery_package"
-    archive_path = Path(shutil.make_archive(str(archive_base), "zip", root_dir=package_root))
+    archive_path = output / "delivery_package.zip"
+    if generated_at:
+        _write_reproducible_zip(package_root, archive_path, generated_at)
+    else:
+        archive_base = output / "delivery_package"
+        archive_path = Path(shutil.make_archive(str(archive_base), "zip", root_dir=package_root))
 
     return {
         "package_dir": str(package_root),
@@ -129,15 +135,28 @@ def package_dataset(
     }
 
 
+def _write_reproducible_zip(package_root: Path, archive_path: Path, generated_at: str) -> None:
+    """Write sorted files with normalized metadata for byte-identical archives."""
+    parsed = datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
+    date_time = (max(parsed.year, 1980), parsed.month, parsed.day, parsed.hour, parsed.minute, parsed.second)
+    with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(item for item in package_root.rglob("*") if item.is_file()):
+            info = zipfile.ZipInfo(path.relative_to(package_root).as_posix(), date_time=date_time)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o100644 << 16
+            archive.writestr(info, path.read_bytes())
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Package a cleaned dataset for delivery.")
     parser.add_argument("cleaned_data")
     parser.add_argument("output_dir")
     parser.add_argument("--artifact", action="append", default=[], help="Additional delivery artifact file.")
     parser.add_argument("--dataset-name")
+    parser.add_argument("--generated-at", help="Fixed ISO timestamp for reproducible manifest and ZIP output.")
     args = parser.parse_args()
 
-    result = package_dataset(args.cleaned_data, args.output_dir, args.artifact, args.dataset_name)
+    result = package_dataset(args.cleaned_data, args.output_dir, args.artifact, args.dataset_name, args.generated_at)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 

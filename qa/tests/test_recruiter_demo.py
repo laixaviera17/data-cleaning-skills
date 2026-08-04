@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 import tempfile
 import unittest
 from pathlib import Path
-
 
 WORKSPACE = Path(__file__).resolve().parents[2]
 DEMO_SCRIPT = WORKSPACE / "scripts" / "run_recruiter_demo.py"
@@ -41,3 +41,26 @@ class RecruiterDemoTest(unittest.TestCase):
             self.assertGreater(summary["issue_rows"], 0)
             self.assertEqual(summary["artifacts"]["cleaned_data"], "cleaned_data.csv")
             self.assertIn("cleaned-dataset-delivery-packager", summary["reused_modules"])
+
+    def test_demo_outputs_are_byte_reproducible(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            first = root / "first"
+            second = root / "second"
+            module = load_demo_module()
+
+            module.run_demo(first)
+            module.run_demo(second)
+
+            artifacts = [
+                "cleaned_data.csv",
+                "issue_rows.csv",
+                "cleaning_log.csv",
+                "cleaning_summary.json",
+                "delivery_manifest.json",
+                "delivery/delivery_package.zip",
+            ]
+            for relative_path in artifacts:
+                first_hash = hashlib.sha256((first / relative_path).read_bytes()).hexdigest()
+                second_hash = hashlib.sha256((second / relative_path).read_bytes()).hexdigest()
+                self.assertEqual(first_hash, second_hash, relative_path)

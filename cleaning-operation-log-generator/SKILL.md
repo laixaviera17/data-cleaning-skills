@@ -46,7 +46,7 @@ description: 当用户需要对结构化数据清洗工具产生的清洗操作�
 统一清洗日志，字段固定为：
 
 ```text
-timestamp,step,rule_name,action,affected_rows,result,message,source_skill,input_count,output_count
+timestamp,step,rule_name,action,affected_rows,result,message,source_skill,input_count,output_count,run_id
 ```
 
 ## cleaning_log_summary

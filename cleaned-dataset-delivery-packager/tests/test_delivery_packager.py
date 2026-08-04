@@ -78,6 +78,25 @@ class DeliveryPackagerTest(unittest.TestCase):
         self.assertIn("reports/quality_report.json", paths)
         self.assertIn("reports/quality_report_2.json", paths)
 
+    def test_fixed_timestamp_produces_byte_reproducible_packages(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            first = package_dataset(
+                ROOT / "examples" / "cleaned_data.csv",
+                root / "first",
+                dataset_name="demo_dataset",
+                generated_at="2026-08-03T00:00:00+00:00",
+            )
+            second = package_dataset(
+                ROOT / "examples" / "cleaned_data.csv",
+                root / "second",
+                dataset_name="demo_dataset",
+                generated_at="2026-08-03T00:00:00+00:00",
+            )
+
+            self.assertEqual(Path(first["manifest_path"]).read_bytes(), Path(second["manifest_path"]).read_bytes())
+            self.assertEqual(Path(first["archive_path"]).read_bytes(), Path(second["archive_path"]).read_bytes())
+
     def test_artifact_directory_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             artifact_dir = Path(tmpdir) / "artifact_dir"
@@ -93,6 +112,8 @@ class DeliveryPackagerTest(unittest.TestCase):
 
         self.assertEqual(set(record), {"path", "role", "size_bytes", "sha256", "source_path"})
         self.assertEqual(record["role"], "data")
+        self.assertEqual(record["source_path"], "cleaned_data.csv")
+        self.assertFalse(Path(record["source_path"]).is_absolute())
         self.assertEqual(len(record["sha256"]), 64)
 
     def test_missing_cleaned_data_raises_clear_error(self):

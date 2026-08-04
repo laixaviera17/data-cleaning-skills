@@ -3,7 +3,7 @@
   "$id": "issue_rows.schema.json",
   "title": "Structured Issue Rows CSV",
   "type": "object",
-  "required": ["columns"],
+  "required": ["columns", "rows"],
   "properties": {
     "columns": {
       "type": "array",
@@ -16,15 +16,23 @@
       ],
       "minItems": 5
     },
-    "row_contract": {
+    "rows": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/row"}
+    }
+  },
+  "$defs": {
+    "row": {
       "type": "object",
+      "required": ["row", "field", "value", "issue_type", "reason"],
       "properties": {
-        "row": {"type": "integer", "minimum": 1},
+        "row": {"type": ["integer", "string"]},
         "field": {"type": "string"},
         "value": {"type": ["string", "number", "boolean", "null"]},
-        "issue_type": {"type": "string"},
-        "reason": {"type": "string"}
-      }
+        "issue_type": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
     }
   },
   "additionalProperties": false

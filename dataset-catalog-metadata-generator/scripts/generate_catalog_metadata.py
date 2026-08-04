@@ -10,7 +10,6 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 CATALOG_STANDARD = "NDI-TR-2025-06"
 NDI_FIELD_MAPPING = {
     "dataset_identifier": "dataset_id",
@@ -111,11 +110,13 @@ def build_schema(records: list[dict]) -> list[dict]:
     schema = []
     for field in fields:
         values = [record.get(field, "") for record in records]
-        schema.append({
-            "name": field,
-            "type": infer_type(values),
-            "missing_cells": sum(1 for value in values if value in ("", None)),
-        })
+        schema.append(
+            {
+                "name": field,
+                "type": infer_type(values),
+                "missing_cells": sum(1 for value in values if value in ("", None)),
+            }
+        )
     return schema
 
 
@@ -139,7 +140,7 @@ def artifact_record(path: str | Path) -> dict:
         raise FileNotFoundError(f"artifact file not found: {artifact}")
     return {
         "name": artifact.name,
-        "path": str(artifact),
+        "path": artifact.name,
         "size_bytes": artifact.stat().st_size,
         "sha256": sha256_file(artifact),
     }
@@ -170,15 +171,27 @@ def generate_catalog_metadata(
     records = load_records(data)
     config = read_config(config_path)
     name = dataset_name or config.get("dataset_name") or data.stem
-    generated_at = datetime.now(timezone.utc).isoformat()
-    dataset_id = config.get("dataset_id") or hashlib.sha256(f"{name}:{data}:{generated_at}".encode("utf-8")).hexdigest()[:16]
+    generated_at = str(config.get("generated_at") or datetime.now(timezone.utc).isoformat())
+    version = config.get("version", "1.0.0")
+    identity_payload = json.dumps(
+        {
+            "dataset_name": name,
+            "version": version,
+            "source": config.get("source", ""),
+            "data_sha256": sha256_file(data),
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    dataset_id = config.get("dataset_id") or hashlib.sha256(identity_payload.encode("utf-8")).hexdigest()[:16]
 
     metadata = {
         "catalog_standard": CATALOG_STANDARD,
         "dataset_id": dataset_id,
         "dataset_name": name,
         "description": config.get("description", ""),
-        "version": config.get("version", "1.0.0"),
+        "version": version,
         "source": config.get("source", ""),
         "license": config.get("license", ""),
         "authorization_type": config.get("authorization_type", ""),
@@ -191,7 +204,7 @@ def generate_catalog_metadata(
         "files": [
             {
                 "name": data.name,
-                "path": str(data),
+                "path": data.name,
                 "role": "primary_data",
                 "size_bytes": data.stat().st_size,
                 "sha256": sha256_file(data),

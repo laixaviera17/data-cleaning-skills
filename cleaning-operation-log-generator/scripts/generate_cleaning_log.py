@@ -24,6 +24,7 @@ LOG_COLUMNS = [
     "source_skill",
     "input_count",
     "output_count",
+    "run_id",
 ]
 
 
@@ -101,6 +102,7 @@ def _normalize_record(record: dict[str, Any], default_source_skill: str) -> dict
         "source_skill": _clean_value(_first_present(record, ["source_skill"])) or default_source_skill,
         "input_count": _clean_value(_first_present(record, ["input_count", "input_rows"])),
         "output_count": _clean_value(_first_present(record, ["output_count", "output_rows"])),
+        "run_id": _clean_value(_first_present(record, ["run_id", "correlation_id"])),
     }
 
 

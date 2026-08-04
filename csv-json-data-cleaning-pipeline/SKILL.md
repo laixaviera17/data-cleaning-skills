@@ -46,8 +46,8 @@ CSV/JSON 数据批量清洗产线用于编排 CSV、JSON、JSONL 等结构化和
 
 - `cleaned_data`：清洗后的主数据，保持输入格式或按配置输出为 CSV、JSON、JSONL，并附带追溯字段 `_source_file`、`_source_row`、`_record_hash`、`_batch_id`、`_rule_version`。
 - `issue_rows`：跨步骤归集的问题数据，字段规范见 `references/output_spec.md`。
-- `cleaning_summary`：输入量、输出量、问题量、删除量、修复量和规则执行摘要。
-- `cleaning_log`：主要步骤、规则名称、影响行数、执行结果和说明信息。
+- `cleaning_summary`：输入量、输出量、问题量、删除量、修复量、`run_id` 和规则执行摘要。
+- `cleaning_log`：主要步骤、规则名称、影响行数、执行结果和用于跨产物追踪的 `run_id`。
 - `dedup_report`：精确去重和相似度去重统计及命中明细。
 
 # 处理流程
@@ -56,7 +56,7 @@ CSV/JSON 数据批量清洗产线用于编排 CSV、JSON、JSONL 等结构化和
 2. 规则校验：检查清洗规则文件是否完整，确认规则中引用的字段是否存在。
 3. 字段映射：如存在映射文件，先统一字段名。
 4. 去重处理：根据 `unique_keys` 配置识别重复数据。
-5. 原子清洗：按规则调用缺失处理、格式标准化、字典校验和异常检测能力。
+5. 原子清洗：按规则依次调用缺失处理、格式标准化、字典校验和异常检测能力。
 6. 问题归集：将重复、缺失、格式失败、字典不匹配、异常检测等输出合并到 `issue_rows`。
 7. 结果汇总：生成 `cleaned_data`、`cleaning_summary` 和 `cleaning_log`。
 
@@ -74,6 +74,24 @@ CSV/JSON 数据批量清洗产线用于编排 CSV、JSON、JSONL 等结构化和
 - 跨步骤问题归集。
 - 清洗统计和追溯日志生成。
 
+# 稳定接口
+
+Pipeline 通过根包 `data_cleaning_skills` 使用统一的 `DataFrameSkill`、`SkillResult` 和 `SkillRegistry`，不在编排代码中维护原子脚本路径。当前注册字段映射、缺失值处理、格式标准化、字典校验和异常检测五个原子 Skill。
+
+可通过 `pipeline.steps` 选择原子 Skill。`ExecutionPlan` 根据依赖图生成确定性顺序；未知或重复名称会被拒绝，未选择步骤会在原子报告中标记为 `skipped`。
+
+规则文件会拒绝未知顶层配置。`field_mapping` 和 `dictionary` 启用时，必须分别提供外部 CSV 文件或非空内联规则；相对文件路径以规则 YAML 所在目录为基准。
+
+```yaml
+pipeline:
+  steps:
+    - table-field-mapping-converter
+    - missing-value-checker
+    - format-standardizer
+    - field-dictionary-value-validator
+    - abnormal-value-detector
+```
+
 # 目录结构说明
 
 推荐目录结构如下：
@@ -88,11 +106,13 @@ csv-json-data-cleaning-pipeline/
 │   ├── data_quality_rules.md
 │   └── output_spec.md
 ├── assets/
-│   └── rule_template.yaml
+│   ├── rule_template.yaml
+│   ├── field_mapping_template.csv
+│   └── dictionary_template.csv
 ├── scripts/
 │   ├── clean_dataset.py
 │   ├── validate_rules.py
-│   └── file_utils.py
+│   └── pipeline_file_utils.py
 ├── tests/
 │   ├── test_clean_dataset.py
 │   ├── test_file_utils.py
@@ -114,6 +134,8 @@ csv-json-data-cleaning-pipeline/
 - `references/data_quality_rules.md`：常见数据质量规则说明。
 - `references/output_spec.md`：输出文件格式和字段规范。
 - `assets/rule_template.yaml`：清洗规则模板。
+- `assets/field_mapping_template.csv`：字段映射 CSV 模板。
+- `assets/dictionary_template.csv`：字段字典 CSV 模板。
 - `scripts/clean_dataset.py`：编排清洗流程，调用原子 Skill 并生成输出。
 - `scripts/validate_rules.py`：规则校验脚本。
 - `scripts/pipeline_file_utils.py`：文件读写工具。

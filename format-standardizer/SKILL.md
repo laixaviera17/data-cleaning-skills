@@ -294,7 +294,7 @@ format-standardizer/
 │       └── abnormal_records.json
 ├── scripts/
 │   ├── standardize_format.py
-│   └── file_utils.py
+│   └── format_file_utils.py
 └── tests/
     └── test_format_standardizer.py
 ```
