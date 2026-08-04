@@ -191,7 +191,7 @@ for chunk in iter_clean_csv("large.csv", rules, chunksize=50_000):
 ```
 
 <!-- QA_RESULTS_START -->
-2026-08-03 本地全量 QA：12 个 Skill，183/183 个测试通过、0 失败、0 跳过；其中 158 个模块测试、25 个工作区集成测试。估算脚本行覆盖率为 82.2%，所有 Skill 均高于 75%。独立 `coverage.py` 分支覆盖率为 80.1%，CI 失败门禁为 75%。
+2026-08-04 本地全量 QA：12 个 Skill，188/188 个测试通过、0 失败、0 跳过；其中 27 个工作区集成测试。估算脚本行覆盖率为 82.3%，所有 Skill 均高于 75%。独立 `coverage.py` 分支覆盖率为 80.19%，CI 失败门禁为 75%。
 <!-- QA_RESULTS_END -->
 
 QA 包括模块测试、跨模块工作区测试和招聘 Demo 验收。覆盖率是 Python `trace` 生成的估算脚本行覆盖率，不等同于 branch coverage。
